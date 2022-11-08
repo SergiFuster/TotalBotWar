@@ -16,7 +16,7 @@ class Switch:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    def case(self, expr, break_=False):
+    def case(self, expr, break_=True):
         if self.strict:
             if self.matched:
                 return False

@@ -1,3 +1,8 @@
 from enum import Enum
 
-Type = Enum('Type', 'SWORD SPEAR HORSE BOW')
+
+class Type(Enum):
+    SWORD = 0
+    HORSE = 1
+    SPEAR = 2
+    BOW = 4
