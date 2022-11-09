@@ -25,6 +25,7 @@ class Unit:
         self.move_y = False     # If it is moving in y-axis
         self.direction = None   # In which direction is facing
         self.target = None      # Unit targeted by this Unit
+        self.dead = False
 
         # region STATS
         self.defense = 0
@@ -114,18 +115,23 @@ class Unit:
         self.attackDistance = function(self.attackDistance)
         self.farAttack = function(self.farAttack)
 
-    def test(self):
-        print("I am a {0} with ID {1} and stats: \n"
-              "{2} defense,\n"
-              "{3} attack,\n"
-              "{4} charge force,\n"
-              "{5} charge resistance,\n"
-              "{6} velocity,\n"
-              "{7} life,\n"
-              "{8} far resistance,\n"
-              "{9} attack distance,\n"
-              "{10} far attack.\n"
-              "And my position is x: {11} and y: {12}".format(self.type.name, self.id, self.defense, self.attack,
-                                                              self.chargeForce, self.chargeResistance, self.velocity,
-                                                              self.life, self.farResistance, self.attackDistance,
-                                                              self.farAttack, self.x, self.y))
+    def take_damage(self, damage: int):
+        self.life -= damage
+        self.dead = self.life <= 0
+
+    def __str__(self):
+        return ("I am a {0} with ID {1} and stats: \n"
+                "{2} defense,\n"
+                "{3} attack,\n"
+                "{4} charge force,\n"
+                "{5} charge resistance,\n"
+                "{6} velocity,\n"
+                "{7} life,\n"
+                "{8} far resistance,\n"
+                "{9} attack distance,\n"
+                "{10} far attack,"
+                "{11} color.\n"
+                "And my position is x: {12} and y: {13} ".format(self.type.name, self.id, self.defense, self.attack,
+                                                                 self.chargeForce, self.chargeResistance, self.velocity,
+                                                                 self.life, self.farResistance, self.attackDistance,
+                                                                 self.farAttack, self.color, self.x, self.y))

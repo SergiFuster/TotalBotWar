@@ -1,30 +1,13 @@
-import pygame, sys
-from pygame.locals import *
 from Game.Unit import Unit
 from Game.Type import Type
-
+from Game.Action import Action
+from Game.Game import Game
+from Game.GameParameters import GameParameters
+from Players.Player import Player
 
 LINE = "-----------------------------------------------------------------------------"
-BACKGROUND_GRAY = [100, 100, 100]
 
-
-class Screen:
-    def __init__(self, horizontal_size, vertical_size, screen_name):
-        pygame.init()
-        self.horizontal_size = horizontal_size
-        self.vertical_size = vertical_size
-        self.screen_name = screen_name
-        self.display = pygame.display.set_mode((self.horizontal_size, self.vertical_size))
-        pygame.display.set_caption(self.screen_name)
-
-    def draw_screen(self):
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-
-
-units = list()
+"""units = list()
 units.append(Unit(Type.SWORD, 1, 100, 100))
 units.append(Unit(Type.HORSE, 2, 200, 100))
 units.append(Unit(Type.SPEAR, 3, 300, 100))
@@ -59,14 +42,23 @@ try:
 except Exception as e:
     print(e)
 
-screen = Screen(1000, 500, "TEST")
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-        screen.display.fill(BACKGROUND_GRAY)
-        for unit in units:
-            pygame.draw.circle(screen.display, unit.color, [unit.x, unit.y], 5)
-        pygame.display.flip()
+print(LINE)
+
+print("TESTING ACTION CLASS")
+
+action1 = Action(units[0].id, units[0].x, units[0].y)
+action2 = Action(units[0].id, units[0].x, units[0].y)
+action3 = Action(units[1].id, units[1].x, units[1].y)
+
+print("Action1 == Action2: ", action1 == action2)
+print("Action1 == Action3: ", action1 == action3)
+print("Action1 == units[0]: ", action1 == units[0])"""
+
+game_parameters = GameParameters()
+game = Game(game_parameters)
+player1 = Player()
+player2 = Player()
+game.run(player1, player2, False, 1)
+
 
 
