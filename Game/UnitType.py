@@ -1,8 +1,8 @@
 from enum import Enum
 
 
-class Type(Enum):
+class UnitType(Enum):
     SWORD = 0
     HORSE = 1
     SPEAR = 2
-    BOW = 4
+    BOW = 3

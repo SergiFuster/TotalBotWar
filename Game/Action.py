@@ -1,14 +1,13 @@
 class Action:
-    def __init__(self, id, x, y):
+    def __init__(self, unit: "TotalBotWar.Game.Unit.Unit", x: int, y: int):
         """
         Construct a new Action object
         :param id: id of Unit that performs the action
         :param x: x-axis where is going the Unit
         :param y: y-axis where is going the Unit
         """
-        self.id = id
-        self.x = x
-        self.y = y
+        self.unit = unit
+        self.destination = (x, y)
 
     def __str__(self):
         return "{0} {1} {2}".format(self.id, self.x, self.y)
@@ -18,9 +17,11 @@ class Action:
         When Action is compared with other object
         with == returns according to this function
         :param other: whatever object
-        :return: returns boolean indicating if both an identical action
+        :return: returns boolean indicating if both have the same id
         """
         if isinstance(other, Action):
-            return self.id == other.id and self.x == other.x and self.y == other.y
+            return self.id == other.id
         else:
             return False
+
+

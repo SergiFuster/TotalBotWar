@@ -1,9 +1,10 @@
 from Game.Unit import Unit
-from Game.Type import Type
+from Game.UnitType import UnitType
 from Game.Action import Action
 from Game.Game import Game
 from Game.GameParameters import GameParameters
-from Players.Player import Player
+from Players.RandomPlayer import RandomPlayer
+from Game.ForwardModel import ForwardModel
 
 LINE = "-----------------------------------------------------------------------------"
 
@@ -54,11 +55,13 @@ print("Action1 == Action2: ", action1 == action2)
 print("Action1 == Action3: ", action1 == action3)
 print("Action1 == units[0]: ", action1 == units[0])"""
 
+verbose = True
+budged = 1
 game_parameters = GameParameters()
 game = Game(game_parameters)
-player1 = Player()
-player2 = Player()
-game.run(player1, player2, False, 1)
+forward_model = ForwardModel()
+players = [RandomPlayer(), RandomPlayer()]
+game.run(players,forward_model, verbose, budged)
 
 
 

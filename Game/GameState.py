@@ -1,4 +1,5 @@
 from Game.Unit import Unit
+from Game.Observation import Observation
 
 
 class GameState:
@@ -10,18 +11,22 @@ class GameState:
         self.game_parameters = game_parameters
         self.player_0_units = []
         self.player_1_units = []
+        self.is_terminal = False
         self.turn = 0
+
+    def get_observation(self) -> "TotalBotWar.Game.Observation.Observation":
+        return Observation(self)
 
     def reset(self):
         """
-        This function reset values of Game.GameState.GameState parameters to its original value
+        This function reset values of TotalBotWar.Game.GameState.GameState parameters to its original value
         :return: return nothing
         """
 
-        width_portion = self.game_parameters.screen_width / self.game_parameters.screen_portions_horizontally
+        width_portion = self.game_parameters.screen_size[0] / self.game_parameters.screen_portions_horizontally
         width_portion_center = width_portion / 2
 
-        height_portion = self.game_parameters.screen_height / self.game_parameters.screen_portions_vertically
+        height_portion = self.game_parameters.screen_size[1] / self.game_parameters.screen_portions_vertically
         height_portion_center = height_portion/2
 
         # Troops for player 0
@@ -43,18 +48,3 @@ class GameState:
             id += 1
 
         self.turn = 0
-
-    def is_terminal(self):
-
-        some_unit_alive = False
-        for unit in self.player_0_units:
-            if not unit.dead:
-                some_unit_alive = True
-        if not some_unit_alive:
-            return True
-
-        for units in self.player_1_units:
-            if not unit.dead:
-                return False
-
-        return True
