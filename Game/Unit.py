@@ -33,7 +33,8 @@ class Unit:
         self.chargeForce = 0
         self.chargeResistance = 0
         self.velocity = 0
-        self.life = 0
+        self.max_health = 0
+        self.health = 0
         self.farResistance = 0
         self.attackDistance = 0
         self.farAttack = 0
@@ -52,8 +53,9 @@ class Unit:
                 self.attack = 20
                 self.chargeForce = 5
                 self.chargeResistance = 25
-                self.velocity = 0.1
-                self.life = 250
+                self.velocity = 0.07
+                self.health = 250
+                self.max_health = self.health
                 self.farResistance = 10
                 self.attackDistance = 10
                 self.farAttack = 0
@@ -63,8 +65,9 @@ class Unit:
                 self.attack = 12
                 self.chargeForce = 100
                 self.chargeResistance = 15
-                self.velocity = 0.26
-                self.life = 200
+                self.velocity = 0.182
+                self.health = 200
+                self.max_health = self.health
                 self.farResistance = 30
                 self.attackDistance = 10
                 self.farAttack = 0
@@ -74,8 +77,9 @@ class Unit:
                 self.attack = 15
                 self.chargeForce = 10
                 self.chargeResistance = 125
-                self.velocity = 0.06
-                self.life = 250
+                self.velocity = 0.042
+                self.health = 250
+                self.max_health = self.health
                 self.farResistance = 30
                 self.attackDistance = 10
                 self.farAttack = 0
@@ -85,8 +89,9 @@ class Unit:
                 self.attack = 10
                 self.chargeForce = 5
                 self.chargeResistance = 0
-                self.velocity = 0.1
-                self.life = 100
+                self.velocity = 0.07
+                self.health = 100
+                self.max_health = self.health
                 self.farResistance = 10
                 self.attackDistance = 450
                 self.farAttack = 20
@@ -95,9 +100,9 @@ class Unit:
                 raise Exception("You can't create unit {0} because {1} isn't a valid type.".format(self.id, self.type))
 
     def restore_stats(self):
-        last_life = self.life
+        last_health = self.health
         self.set_stats()
-        self.life = last_life
+        self.health = last_health
 
     def modify_stats(self, function):
         """
@@ -115,8 +120,8 @@ class Unit:
         self.farAttack = function(self.farAttack)
 
     def take_damage(self, damage: int):
-        self.life -= damage
-        self.dead = self.life <= 0
+        self.health -= damage
+        self.dead = self.health <= 0
 
     def set_destination(self, destination: Vector) -> None:
         self.set_direction(destination)
@@ -143,6 +148,6 @@ class Unit:
                 "{11} color.\n"
                 "And my position is x: {12} and y: {13} ".format(self.type.name, self.id, self.defense, self.attack,
                                                                  self.chargeForce, self.chargeResistance, self.velocity,
-                                                                 self.life, self.farResistance, self.attackDistance,
+                                                                 self.health, self.farResistance, self.attackDistance,
                                                                  self.farAttack, self.color,
                                                                  self.position.x, self.position.y))

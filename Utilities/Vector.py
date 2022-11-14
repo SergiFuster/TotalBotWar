@@ -106,7 +106,7 @@ class Vector:
     @property
     def values(self):
         """Return list with axis (reference)"""
-        return self.value
+        return self.value[:]
     # endregion
 
     # region SETTERS

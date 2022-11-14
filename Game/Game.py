@@ -16,7 +16,7 @@ class Game:
         self.game_state.reset()
 
     def run(self, l_players, forward_model,
-            verbose: bool, budged: float):
+            verbose: bool, budged: float, debug: bool, hud: bool):
         """Runs a TotalBotWar 'Game'"""
         for unit in self.game_state.player_0_units:
             print(unit, "\n")
@@ -31,7 +31,8 @@ class Game:
             if verbose:
                 time.sleep(0.01)
                 self.gui.draw_screen(self.game_state.player_0_units +
-                                     self.game_state.player_1_units)  # Just for pygame version
+                                     self.game_state.player_1_units,
+                                     debug, hud)  # Just for pygame version
 
             if time.time() - last_time >= 0.1:
                 for player in l_players:
