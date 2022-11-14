@@ -39,4 +39,4 @@ class Game:
                     action = player.think(observation, budged)
                     forward_model.process_action(self.game_state, action)
                     last_time = time.time()
-            forward_model.step(self.game_state, action)
+            forward_model.step(self.game_state)

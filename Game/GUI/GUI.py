@@ -27,8 +27,8 @@ class GUI:
                 sys.exit()
         self.display.fill(BACKGROUND_GRAY)
         for unit in units:
-            pygame.draw.circle(self.display, unit.color, [unit.x, unit.y], unit.radius)
-            pygame.draw.line(self.display, (0, 255, 0), (unit.x, unit.y), unit.destination, 1)
+            pygame.draw.circle(self.display, unit.color, unit.position.values, unit.radius)
+            pygame.draw.line(self.display, (0, 255, 0), unit.position.values, unit.destination.values, 1)
         pygame.display.flip()
 
     def close_screen(self):

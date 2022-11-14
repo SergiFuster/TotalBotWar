@@ -1,6 +1,6 @@
 from Utilities.Switch import Switch
 from Game.UnitType import UnitType
-from Game.Direction import Direction
+from Utilities.Vector import Vector
 
 
 class Unit:
@@ -15,17 +15,16 @@ class Unit:
         """
         self.type = type
         self.id = id
-        self.x = x
-        self.y = y
+        self.position = Vector([x, y])
         self.moving = False
         self.buffed = False
-        self.radius = 5         # Just for pygame visualization
+        self.radius = 5                         # Just for pygame visualization
 
-        self.destination = (self.x, self.y)
-        self.move_x = False     # If it is moving in x-axis
-        self.move_y = False     # If it is moving in y-axis
-        self.direction = None   # In which direction is facing
-        self.target = None      # Unit targeted by this Unit
+        self.destination = Vector([self.position.x, self.position.y])
+        self.move_x = False                     # If it is moving in x-axis
+        self.move_y = False                     # If it is moving in y-axis
+        self.direction = Vector([0, 0])         # In which direction is facing
+        self.target = None                      # Unit targeted by this Unit
         self.dead = False
 
         # region STATS
@@ -119,35 +118,16 @@ class Unit:
         self.life -= damage
         self.dead = self.life <= 0
 
-    def set_destination(self, destination: (int, int)) -> None:
+    def set_destination(self, destination: Vector) -> None:
         self.set_direction(destination)
         self.destination = destination
 
-    def move(self, pixels_x, pixels_y):
-        self.x += pixels_x
-        self.y += pixels_y
+    def move(self, vector: Vector):
+        self.position += vector
 
     def set_direction(self, destination):
-
-        if destination[0] == self.x:
-            if destination[1] < self.y:
-                self.direction = Direction.N
-            else:
-                self.direction = Direction.S
-        elif destination[0] < self.x:
-            if destination[1] < self.y:
-                self.direction = Direction.NW
-            elif destination[1] > self.y:
-                self.direction = Direction.SW
-            else:
-                self.direction = Direction.W
-        else:
-            if destination[1] < self.y:
-                self.direction = Direction.NE
-            elif destination[1] > self.y:
-                self.direction = Direction.SE
-            else:
-                self.direction = Direction.E
+        # Direction is always normalized
+        self.direction = self.position.direction(destination).normalize()
 
     def __str__(self):
         return ("I am a {0} with ID {1} and stats: \n"
@@ -164,4 +144,5 @@ class Unit:
                 "And my position is x: {12} and y: {13} ".format(self.type.name, self.id, self.defense, self.attack,
                                                                  self.chargeForce, self.chargeResistance, self.velocity,
                                                                  self.life, self.farResistance, self.attackDistance,
-                                                                 self.farAttack, self.color, self.x, self.y))
+                                                                 self.farAttack, self.color,
+                                                                 self.position.x, self.position.y))
