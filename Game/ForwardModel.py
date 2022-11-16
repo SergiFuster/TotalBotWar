@@ -23,13 +23,16 @@ class ForwardModel:
                        game_state: Union["TotalBotWar.Game.GameState.GameState",
                                          "TotalBotWar.Game.Observation.Observation"],
                        action: "TotalBotWar.Game.Action.Action"):
-        """If action is valid, set destination of unit as it's new destination"""
+        """If new destination and action is valid, set destination of unit as it's new destination"""
+        game_state.turn = (game_state.turn + 3) % 2
+
         unit = action.unit
+
+        if action.destination == unit.destination:
+            return
 
         if self.valid_destination(game_state.game_parameters.screen_size, action.destination):
             unit.set_destination(action.destination)
-
-        game_state.turn = (game_state.turn + 3) % 2
 
     def move_unit(self, unit: "TotalBotWar.Game.Unit.Unit",
                   parameters: "TotalBotWar.Game.GameParameters.GameParameters"):

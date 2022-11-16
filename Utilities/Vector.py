@@ -28,16 +28,6 @@ class Vector:
             normalized_vector.append(e/module)
         return Vector(normalized_vector)
 
-    def normalize(self) -> 'Vector':
-        """Normalize self values"""
-        module = self.magnitude()
-
-        if module <= 1:
-            return
-
-        for e in self.value:
-            e /= module
-
     def clone(self):
         return Vector(self.value[:])
 
@@ -56,6 +46,24 @@ class Vector:
     def distance(v1, v2):
         """Return the distance between v1 and v2"""
         return v1.direction(v2).magnitude()
+
+    @staticmethod
+    def dot_product(v1: 'Vector', v2: 'Vector') -> float:
+        """Calculate de scalar product of 2 vectors"""
+        if len(v1) != len(v2):
+            Exception("Cannot calculate dot product of 2 vector with different dimensions")
+        summation = 0
+        for i in range(len(v1)):
+            summation += v1.values[i] * v2.values[i]
+        return summation
+
+    @staticmethod
+    def angle(v1: 'Vector', v2: 'Vector') -> float:
+        """Return the angle between 2 vectors"""
+        dot = Vector.dot_product(v1.normalized(), v2.normalized())
+        if abs(dot) > 1:
+            return 0
+        return math.degrees(math.acos(Vector.dot_product(v1.normalized(), v2.normalized())))
 
     @staticmethod
     def zero():
@@ -105,7 +113,7 @@ class Vector:
 
     @property
     def values(self):
-        """Return list with axis (reference)"""
+        """Return list with axis (copy)"""
         return self.value[:]
     # endregion
 

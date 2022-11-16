@@ -23,7 +23,7 @@ class Unit:
         self.destination = Vector([self.position.x, self.position.y])
         self.move_x = False                     # If it is moving in x-axis
         self.move_y = False                     # If it is moving in y-axis
-        self.direction = Vector([0, 0])         # In which direction is facing
+        self.direction = Vector([1, 0])         # In which direction is facing
         self.target = None                      # Unit targeted by this Unit
         self.dead = False
 
@@ -131,8 +131,8 @@ class Unit:
         self.position += vector
 
     def set_direction(self, destination):
-        # Direction is always normalized
-        self.direction = self.position.direction(destination).normalize()
+        new_direction = self.position.direction(destination).normalized()
+        self.direction = new_direction
 
     def __str__(self):
         return ("I am a {0} with ID {1} and stats: \n"
