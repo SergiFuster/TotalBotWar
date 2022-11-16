@@ -4,8 +4,12 @@ from Utilities.Vector import Vector
 
 class ForwardModel:
 
-    def step(self, game_state: "TotalBotWar.Game.GameState.GameState"):
-
+    def step(self, game_state):
+        """
+        Performs a game step, move or attack with each unit
+        :param game_state: TotalBotWar.Game.GameState.GameState
+        :return: None
+        """
         units = game_state.player_0_units + game_state.player_1_units
 
         # If unit isn't on its destination yet
@@ -19,11 +23,13 @@ class ForwardModel:
         observation.is_terminal = self.is_terminal()
         pass
 
-    def process_action(self,
-                       game_state: Union["TotalBotWar.Game.GameState.GameState",
-                                         "TotalBotWar.Game.Observation.Observation"],
-                       action: "TotalBotWar.Game.Action.Action"):
-        """If new destination and action is valid, set destination of unit as it's new destination"""
+    def process_action(self, game_state, action):
+        """
+        If new destination and action is valid, set destination of unit as it's new destination
+        :param game_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
+        :param action: TotalBotWar.Game.Observation.Observation
+        :return: None
+        """
         game_state.turn = (game_state.turn + 3) % 2
 
         unit = action.unit
@@ -34,9 +40,13 @@ class ForwardModel:
         if self.valid_destination(game_state.game_parameters.screen_size, action.destination):
             unit.set_destination(action.destination)
 
-    def move_unit(self, unit: "TotalBotWar.Game.Unit.Unit",
-                  parameters: "TotalBotWar.Game.GameParameters.GameParameters"):
-
+    def move_unit(self, unit, parameters):
+        """
+        Move unit towards its direction
+        :param unit: TotalBotWar.Game.Unit.Unit
+        :param parameters: TotalBotWar.Game.GameParameters.GameParameters
+        :return: None
+        """
         # If distance is lower than velocity
         if Vector.distance(unit.position, unit.destination) <= unit.velocity:
             # Set step as de vector between you and destination
@@ -53,6 +63,15 @@ class ForwardModel:
         unit.move_x = not unit.position.x == unit.destination.x
         unit.move_y = not unit.position.y == unit.destination.y
         unit.moving = unit.move_x or unit.move_y
+
+    def intersect(self, unit1, unit2):
+        """
+        Return a boolean indicating if unit1 and unit2 are intersecting
+        :param unit1: TotalBotWar.Game.Unit.Unit
+        :param unit2: TotalBotWar.Game.Unit.Unit
+        :return: bool
+        """
+        pass
 
     def valid_destination(self, screen_size, destination: 'Vector') -> bool:
         """returns boolean indicating if destination is inside the window"""

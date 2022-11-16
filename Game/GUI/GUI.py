@@ -4,6 +4,9 @@ from pygame.locals import *
 BACKGROUND_GRAY = [100, 100, 100]
 GREEN = [0, 255, 0]
 WHITE = [255, 255, 255]
+RED = [255, 0, 0]
+MAGENTA = [255, 0, 255]
+
 
 class GUI:
     def __init__(self, screen_size, screen_name):
@@ -15,6 +18,7 @@ class GUI:
         self.font = None
         self.health_bar_width = 20
         self.health_bar_height = 3
+        self.direction_line_longitude = 10
 
     def start_screen(self):
         pygame.init()
@@ -37,7 +41,10 @@ class GUI:
             pygame.draw.circle(self.display, unit.color, unit.position.values, unit.radius)
 
             if debug:
-                pygame.draw.line(self.display, (0, 255, 0), unit.position.values, unit.destination.values, 1)
+                pygame.draw.line(self.display, GREEN, unit.position.values, unit.destination.values, 1)
+                pygame.draw.line(self.display, MAGENTA, unit.position.values,
+                                 (unit.position + (unit.direction.normalized()*self.direction_line_longitude)).values,
+                                 2)
             if hud:
                 # region IDs
                 id = self.font.render(str(unit.id), True, WHITE)

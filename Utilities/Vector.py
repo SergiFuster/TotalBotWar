@@ -62,7 +62,7 @@ class Vector:
         """Return the angle between 2 vectors"""
         dot = Vector.dot_product(v1.normalized(), v2.normalized())
         if abs(dot) > 1:
-            return 0
+            Exception("Arccos of x being abs(x) > 1 is invalid")
         return math.degrees(math.acos(Vector.dot_product(v1.normalized(), v2.normalized())))
 
     @staticmethod
