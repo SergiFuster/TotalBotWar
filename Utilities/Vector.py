@@ -31,13 +31,14 @@ class Vector:
     def clone(self):
         return Vector(self.value[:])
 
-    def direction(self, other_vector: "TotalBotWar.Utilities.Vector.Vector") -> 'Vector':
-        """Returns a new vector with direction from self to other"""
-        if len(other_vector.value) != len(self.value):
+    @staticmethod
+    def direction(v1, v2):
+        """Returns a new vector with direction from v1 to v2"""
+        if len(v1) != len(v2):
             Exception("You can't calculate the direction between vectors of different dimensions")
         direction = []
-        for i in range(0, len(other_vector.value)):
-            direction.append(other_vector.value[i] - self.value[i])
+        for i in range(0, len(v1)):
+            direction.append(v2.value[i] - v1.value[i])
         return Vector(direction)
 
     # region STATIC METHODS
@@ -45,7 +46,7 @@ class Vector:
     @staticmethod
     def distance(v1, v2):
         """Return the distance between v1 and v2"""
-        return v1.direction(v2).magnitude()
+        return Vector.direction(v1, v2).magnitude()
 
     @staticmethod
     def dot_product(v1: 'Vector', v2: 'Vector') -> float:

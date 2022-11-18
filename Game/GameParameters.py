@@ -8,8 +8,7 @@ class GameParameters:
         """
         This is class-keeper to group every game modifiable parameters in one site
         :param troops: array of Troop to know which kind of troop and where position it
-        :param screen_width: we need this information to can position troops accordingly
-        :param screen_height: we need this information to can position troops accordingly
+        :param screen_size: tuple with width and height, we need this information to can position troops accordingly
         :param screen_portions_horizontally: we use portions instead of pixels to adapt the position to every screen size
         :param screen_portions_vertically: we use portions instead of pixels to adapt the position to every screen size
         """

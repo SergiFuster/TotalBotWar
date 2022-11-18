@@ -27,9 +27,8 @@ class Game:
         last_time = time.time()
 
         while not self.game_state.is_terminal:
-
+            time.sleep(0.01)
             if verbose:
-                time.sleep(0.01)
                 self.gui.draw_screen(self.game_state.player_0_units +
                                      self.game_state.player_1_units,
                                      debug, hud)  # Just for pygame version

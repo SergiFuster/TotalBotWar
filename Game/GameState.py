@@ -34,7 +34,8 @@ class GameState:
         for troop in self.game_parameters.troops:
             self.player_0_units.append(Unit(troop.type, id,
                                             width_portion*troop.x_portion - width_portion_center,
-                                            height_portion*troop.y_portion - height_portion_center))
+                                            height_portion*troop.y_portion - height_portion_center,
+                                            0))
             id += 1
 
         # Troops for player 1
@@ -44,7 +45,8 @@ class GameState:
                                             width_portion * troop.x_portion - width_portion_center,
                                             height_portion *
                                             (self.game_parameters.screen_portions_vertically-troop.y_portion) -
-                                            height_portion_center))
+                                            height_portion_center,
+                                            1))
             id += 1
 
         self.turn = 0
