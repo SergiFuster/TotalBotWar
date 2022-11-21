@@ -96,6 +96,9 @@ class Vector:
             Exception("Cannot add Vector by something that's not a Vector")
         return Vector([other.values[i] + self.values[i] for i in range(len(self))])
 
+    def __str__(self):
+        return str(self.values)
+
     def __len__(self):
         """Return the dimension of the vector"""
         return len(self.values)

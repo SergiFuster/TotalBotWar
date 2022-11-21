@@ -15,15 +15,19 @@ class ForwardModel:
         # Charge execution and fighting state updater
         for unit_p0 in game_state.player_0_units:
             for unit_p1 in game_state.player_1_units:
+
+                # Unit doesn't update target until finishing with actual one
                 if unit_p0.target is not None and unit_p1.target is not None:
                     continue
+
                 if self.intersect(unit_p0, unit_p1):
                     print("Unit {0} of team 0 intersected with unit {1} of team 1".format(unit_p0.id, unit_p1.id))
                     self.manage_intersection(unit_p0, unit_p1)
+                    print()
 
         # If unit isn't on its destination yet
         for unit in units:
-            if unit.position != unit.destination and unit.target is None:
+            if unit.moving and unit.target is None:
                 self.move_unit(unit, game_state.game_parameters)
 
         game_state.is_terminal = self.is_terminal(game_state)
@@ -44,7 +48,7 @@ class ForwardModel:
             if unit0.moving and angle_to_target < 90:
                 self.charge(unit0, unit1)
             unit0.set_destination(unit0.position)
-            unit0.target = unit1
+            unit0.target = unit1.id
 
         if unit1.target is None:
             direction_to_target = Vector.direction(unit1.position, unit0.position)
@@ -55,7 +59,7 @@ class ForwardModel:
             if unit1.moving and angle_to_target < 90:
                 self.charge(unit1, unit0)
             unit1.set_destination(unit1.position)
-            unit1.target = unit0
+            unit1.target = unit0.id
 
     def charge(self, unit0, unit1):
         """
@@ -70,7 +74,7 @@ class ForwardModel:
         damage = unit0.chargeForce - (unit1.chargeResistance / impact_force)
 
         # Avoiding add life if unit1 have much chargeResistance
-        damage = damage if damage > 0 else 10
+        damage = damage if damage > 0 else 0
 
         unit1.take_damage(damage)
 
@@ -87,15 +91,36 @@ class ForwardModel:
         """
         game_state.turn = (game_state.turn + 3) % 2
 
-        unit = action.unit
+        if action is None:
+            return
 
-        # If destination doesn't change, don't update destination cause
-        # when arrive its direction would set as (0,0), and we don't want that
-        if action.destination == unit.destination or unit.target is not None:
+        # (game_state.turn + 3) % 2 it's the opposite turn of game_state.turn
+        unit = self.get_unit_by_id_and_turn(game_state, action.unit.id, (game_state.turn + 3) % 2)
+
+        # This statement is temporal, cause move unit that is fighting is still allowed
+        if unit.target is not None:
             return
 
         if self.valid_destination(game_state.game_parameters.screen_size, action.destination):
             unit.set_destination(action.destination)
+
+    def get_unit_by_id_and_turn(self, game_state, id, turn):
+        """
+        Return the unit with unit.id == id and unit.team == turn
+        :param game_state: TotalBotWar.Game.GameState.GameState
+        :param id: int
+        :param turn: int
+        :return: TotalBotWar.Game.Unit.Unit
+        """
+        if id < 0 or \
+                id >= len(game_state.player_0_units) and turn == 0 or \
+                id >= len(game_state.player_1_units) and turn == 1:
+            Exception("Unit with id {0} doesn't exist".format(id))
+
+        if turn == 0:
+            return game_state.player_0_units[id]
+        else:
+            return game_state.player_1_units[id]
 
     def move_unit(self, unit, parameters):
         """
@@ -118,8 +143,8 @@ class ForwardModel:
         unit.move(step)
 
         # Update unit movement parameters
-        unit.move_x = not unit.position.x == unit.destination.x
-        unit.move_y = not unit.position.y == unit.destination.y
+        unit.move_x = unit.position.x != unit.destination.x
+        unit.move_y = unit.position.y != unit.destination.y
         unit.moving = unit.move_x or unit.move_y
 
     def intersect(self, unit0, unit1):
@@ -133,11 +158,11 @@ class ForwardModel:
 
     def collide_in_x_axis(self, unit0, unit1):
         return (unit0.position.x + unit0.size[0] / 2) > unit1.position.x - unit1.size[0] / 2 and \
-                unit0.position.x + unit0.size[0] / 2 < unit1.position.x + unit1.size[0] / 2 + unit1.size[0]
+                unit0.position.x + unit0.size[0] / 2 < unit1.position.x + unit1.size[0] / 2 + unit0.size[0]
 
     def collide_in_y_axis(self, unit0, unit1):
         return (unit0.position.y + unit0.size[1] / 2) > unit1.position.y - unit1.size[1] / 2 and \
-                unit0.position.y + unit0.size[1] / 2 < unit1.position.y + unit1.size[1] / 2 + unit1.size[1]
+                unit0.position.y + unit0.size[1] / 2 < unit1.position.y + unit1.size[1] / 2 + unit0.size[1]
 
     def valid_destination(self, screen_size, destination: 'Vector') -> bool:
         """returns boolean indicating if destination is inside the window"""

@@ -5,6 +5,7 @@ from Game.Game import Game
 from Game.GameParameters import GameParameters
 from Players.RandomPlayer import RandomPlayer
 from Game.ForwardModel import ForwardModel
+from Players.AlwaysStraightPlayer import AlwaysStraightPlayer
 
 LINE = "-----------------------------------------------------------------------------"
 
@@ -62,7 +63,7 @@ budged = 1
 game_parameters = GameParameters()
 game = Game(game_parameters)
 forward_model = ForwardModel()
-players = [RandomPlayer(), RandomPlayer()]
+players = [AlwaysStraightPlayer(), RandomPlayer()]
 game.run(players, forward_model, verbose, budged, debug, HUD)
 
 

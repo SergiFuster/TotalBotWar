@@ -10,6 +10,7 @@ class Game:
         self.game_state = GameState(parameters)
         self.reset()
         self.gui = GUI(parameters.screen_size, "TotalBotWar")  # Just for pygame version
+        self.pause = False      # Just for pygame version
 
     def reset(self):
         """Reset GameState so is ready for a new 'Game'"""
@@ -27,11 +28,14 @@ class Game:
         last_time = time.time()
 
         while not self.game_state.is_terminal:
-            time.sleep(0.01)
+            time.sleep(0.001)
             if verbose:
-                self.gui.draw_screen(self.game_state.player_0_units +
-                                     self.game_state.player_1_units,
-                                     debug, hud)  # Just for pygame version
+                pause = self.gui.draw_screen(self.game_state.player_0_units +
+                                             self.game_state.player_1_units,
+                                             debug, hud)  # Just for pygame version
+
+            if pause:
+                continue
 
             if time.time() - last_time >= 0.1:
                 for player in l_players:

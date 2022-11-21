@@ -25,3 +25,10 @@ class GameParameters:
         self.screen_portions_vertically = screen_portions_vertically
         self.screen_size = screen_size
         self.troops = troops
+
+    def clone(self):
+        new_troops = []
+        for troop in self.troops:
+            new_troops.append(troop.clone())
+        return GameParameters(new_troops, self.screen_size[:], self.screen_portions_horizontally,
+                              self.screen_portions_vertically)

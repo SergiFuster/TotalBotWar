@@ -1,4 +1,5 @@
-import pygame, sys
+import pygame
+import sys
 from pygame.locals import *
 
 BACKGROUND_GRAY = [100, 100, 100]
@@ -32,11 +33,11 @@ class GUI:
     def draw_screen(self, units, debug, hud):
 
         """
-        Initialize self.display once, manage window events and draw units, debug and hud
+        Initialize self-display once, manage window events and draw units, debug and hud
         :param units: List of TotalBotWar.Game.Unit.Unit
         :param debug: Bool
         :param hud: Bool
-        :return: None
+        :return: bool that indicates if game is paused
         """
         if not self.screen_open:
             self.start_screen()
@@ -49,7 +50,7 @@ class GUI:
                 self.pause = not self.pause
 
         if self.pause:
-            return
+            return self.pause
 
         self.display.fill(BACKGROUND_GRAY)
         for unit in units:
@@ -62,6 +63,8 @@ class GUI:
                 self.draw_hud(unit)
 
         pygame.display.flip()
+
+        return self.pause
 
     def draw_unit(self, unit):
         """
@@ -113,8 +116,9 @@ class GUI:
         # endregion
         # region Instructions
         freeze = self.font.render("C l i c k  t o  f r e e z e / u n f r e e z e  t h e  g a m e", True, BLACK)
-        pos_text = [10, 0]
+        pos_text = [10, 10]
         self.display.blit(freeze, pos_text)
+        # endregion
 
     def close_screen(self):
         pygame.quit()

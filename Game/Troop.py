@@ -9,3 +9,6 @@ class Troop:
         self.type = type
         self.x_portion = x_portion
         self.y_portion = y_portion
+
+    def clone(self):
+        return Troop(self.type, self.x_portion, self.y_portion)

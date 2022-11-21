@@ -19,15 +19,14 @@ class Unit:
         self.position = Vector([x, y])
         self.moving = False
         self.buffed = False
-        self.radius = 5
         self.team = team
-        self.size = (0, 0)                          # Just for pygame visualization
+        self.size = (0, 0)
 
         self.destination = Vector([self.position.x, self.position.y])
-        self.move_x = False                 # If it is moving in x-axis
-        self.move_y = False                 # If it is moving in y-axis
-        self.direction = Vector([1, 0])     # In which direction is facing
-        self.target = None                  # Unit targeted by this Unit
+        self.move_x = False                                                     # If it is moving in x-axis
+        self.move_y = False                                                     # If it is moving in y-axis
+        self.direction = Vector([0, 1]) if team == 0 else Vector([0, -1])       # In which direction is facing
+        self.target = None                                                      # Unit targeted by this Unit
         self.dead = False
 
         # region STATS
@@ -42,7 +41,7 @@ class Unit:
         self.attackDistance = 0
         self.farAttack = 0
         # endregion
-        self.color = []  # Just for pygame visualization
+        self.color = []                                                         # Just for pygame visualization
         self.set_stats()
 
     def set_stats(self):
@@ -149,9 +148,8 @@ class Unit:
         :return: None
         """
         if destination != self.position:
+            self.moving = True
             self.set_direction(destination)
-        else:
-            self.moving = False
         self.destination = destination
 
     def move(self, vector: Vector):
@@ -161,6 +159,24 @@ class Unit:
         new_direction = Vector.direction(self.position, destination)
         new_direction.normalized()
         self.direction = new_direction
+
+    def clone(self):
+        """
+        Generate a copy of self unit
+        :return: TotalBotWar.Game.Unit.Unit
+        """
+        new_unit = Unit(self.type, self.id, self.position.x, self.position.y, self.team)
+        new_unit.destination = self.destination.clone()
+        new_unit.direction = self.direction.clone()
+        new_unit.health = self.health
+        new_unit.moving = self.moving
+        new_unit.buffed = self.buffed
+        new_unit.move_x = self.move_x
+        new_unit.move_y = self.move_y
+        new_unit.target = self.target if self.target is not None else None
+        new_unit.dead = self.dead
+
+        return new_unit
 
     def __str__(self):
         return ("I am a {0} with ID {1} and stats: \n"
