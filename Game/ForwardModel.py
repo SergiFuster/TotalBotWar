@@ -1,5 +1,6 @@
 from typing import Union
 from Utilities.Vector import Vector
+import time
 
 
 class ForwardModel:
@@ -15,22 +16,36 @@ class ForwardModel:
         # Charge execution and fighting state updater
         for unit_p0 in game_state.player_0_units:
             for unit_p1 in game_state.player_1_units:
-
                 # Unit doesn't update target until finishing with actual one
-                if unit_p0.target is not None and unit_p1.target is not None:
+                if (not unit_p0.moving and not unit_p1.moving) or unit_p0.dead or unit_p1.dead:
                     continue
 
                 if self.intersect(unit_p0, unit_p1):
-                    print("Unit {0} of team 0 intersected with unit {1} of team 1".format(unit_p0.id, unit_p1.id))
                     self.manage_intersection(unit_p0, unit_p1)
-                    print()
 
-        # If unit isn't on its destination yet
+        # Fight or movement execution for every unit
         for unit in units:
-            if unit.moving and unit.target is None:
+            if unit.dead:
+                continue
+            if unit.can_move():
                 self.move_unit(unit, game_state.game_parameters)
+            elif unit.target is not None and unit.can_attack():
+                self.attack(unit)
 
         game_state.is_terminal = self.is_terminal(game_state)
+
+    def attack(self, unit):
+        """
+        Executes attack from unit to unit-target
+        :param unit: TotalBotWar.Game.Unit.Unit
+        :return: None
+        """
+        if unit.target.dead:
+            unit.target = None
+        else:
+            unit.last_attack = time.time()
+            damage = unit.attack - unit.target.defense / 2
+            unit.target.take_damage(damage)
 
     def manage_intersection(self, unit0, unit1):
         """
@@ -42,24 +57,20 @@ class ForwardModel:
         if unit0.target is None:
             direction_to_target = Vector.direction(unit0.position, unit1.position)
             angle_to_target = Vector.angle(unit0.direction, direction_to_target)
-            print("Angle between direction of unit {0} of team 0 and unit {1} of team 1: {2}".format(unit0.id, unit1.id,
-                                                                                                     angle_to_target))
             # If it is moving and its target is in front of him
             if unit0.moving and angle_to_target < 90:
                 self.charge(unit0, unit1)
             unit0.set_destination(unit0.position)
-            unit0.target = unit1.id
+            unit0.target = unit1
 
         if unit1.target is None:
             direction_to_target = Vector.direction(unit1.position, unit0.position)
             angle_to_target = Vector.angle(unit1.direction, direction_to_target)
-            print("Angle between direction of unit {0} of team 1 and unit {1} of team 0: {2}".format(unit1.id, unit0.id,
-                                                                                                     angle_to_target))
             # If it is moving and its target is in front of him
             if unit1.moving and angle_to_target < 90:
                 self.charge(unit1, unit0)
             unit1.set_destination(unit1.position)
-            unit1.target = unit0.id
+            unit1.target = unit0
 
     def charge(self, unit0, unit1):
         """
@@ -70,13 +81,41 @@ class ForwardModel:
         """
         direction_of_impact = Vector.direction(unit1.position, unit0.position)
         angle_of_impact = Vector.angle(unit1.direction, direction_of_impact)
-        impact_force = 1 if angle_of_impact < 90 else 3
-        damage = unit0.chargeForce - (unit1.chargeResistance / impact_force)
+        # If impact is from behind or sides, resistance is reduced
+        resistance_reduction = 1 if angle_of_impact < 90 else 3
+        impact_bonus = self.get_impact_bonus_types(unit0.type, unit1.type)
+        print("Charger type: {0} \nReceiver type: {1} \nAngle of impact: {2}".format(unit0.type, unit1.type,
+                                                                                     angle_of_impact))
+        print("Charger force: {0} \nReceiver resistance: {1} \nImpact bonus: {2} \n"
+              "Resistance reduction: {3} \nEquation: {0} * {2} - {1} / {3}".format(unit0.chargeForce,
+                                                                                   unit1.chargeResistance,
+                                                                                   impact_bonus,
+                                                                                   resistance_reduction))
+        print()
+        damage = (unit0.chargeForce * impact_bonus) - (unit1.chargeResistance / resistance_reduction)
 
         # Avoiding add life if unit1 have much chargeResistance
         damage = damage if damage > 0 else 0
 
         unit1.take_damage(damage)
+
+    def get_impact_bonus_types(self, type_charger, type_receiver):
+        """
+        Get a number that indicates if charger have type bonus over receiver
+        :param type_charger: TotalBotWar.Game.UnitType.UnitType
+        :param type_receiver: TotalBotWar.Game.UnitType.UnitType
+        :return: int
+        """
+
+        if str(type_charger) == "SWORD" and str(type_receiver) == "SPEAR" or \
+                str(type_charger) == "SPEAR" and str(type_receiver) == "HORSE" or \
+                str(type_charger) == "HORSE" and str(type_receiver) == "SWORD" or \
+                str(type_receiver) == "BOW":
+
+            return 10
+
+        else:
+            return 1
 
     def test(self, observation: "TotalBotWar.Game.Observation.Observation", action: "TotalBotWar.Game.Action.Action"):
         observation.is_terminal = self.is_terminal()

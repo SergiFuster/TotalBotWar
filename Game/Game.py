@@ -28,7 +28,7 @@ class Game:
         last_time = time.time()
 
         while not self.game_state.is_terminal:
-            time.sleep(0.001)
+            time.sleep(0.01)
             if verbose:
                 pause = self.gui.draw_screen(self.game_state.player_0_units +
                                              self.game_state.player_1_units,

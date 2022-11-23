@@ -22,6 +22,8 @@ class GUI:
         self.health_bar_width = 20
         self.health_bar_height = 3
         self.direction_line_longitude = 10
+        self.swords = pygame.image.load("Images/crossed_swords.png")
+        self.swords = pygame.transform.scale(self.swords, (50, 50))
 
     def start_screen(self):
         pygame.init()
@@ -104,20 +106,31 @@ class GUI:
         self.display.blit(id, pos_text)
         # endregion
         # region HEALTH
+        health = self.font.render("{0:.1f}".format(unit.health), True, GREEN)
         pos_health = unit.position.values
-        pos_health[1] -= unit.size[1] / 2 + self.health_bar_height + 5
+        pos_health[0] -= health.get_width() / 2
+        pos_health[1] -= unit.size[1]/2 + health.get_height()
+        self.display.blit(health, pos_health)
+        """pos_health[1] -= unit.size[1] / 2 + self.health_bar_height + 5
         pos_health[0] -= self.health_bar_width / 2
         green_rect = pygame.Rect(pos_health[0], pos_health[1],
                                  int(unit.health / unit.max_health * self.health_bar_width), self.health_bar_height)
         red_rect = pygame.Rect(pos_health[0], pos_health[1],
                                self.health_bar_width, self.health_bar_height)
         pygame.draw.rect(self.display, RED, red_rect)
-        pygame.draw.rect(self.display, GREEN, green_rect)
+        pygame.draw.rect(self.display, GREEN, green_rect)"""
         # endregion
         # region Instructions
         freeze = self.font.render("C l i c k  t o  f r e e z e / u n f r e e z e  t h e  g a m e", True, BLACK)
         pos_text = [10, 10]
         self.display.blit(freeze, pos_text)
+        # endregion
+        # region FIGHT
+        if unit.target is not None:
+            swords_pos = unit.position.values
+            swords_pos[0] -= self.swords.get_width()/2
+            swords_pos[1] -= self.swords.get_height()/2
+            self.display.blit(self.swords, swords_pos)
         # endregion
 
     def close_screen(self):

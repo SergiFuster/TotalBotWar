@@ -1,6 +1,7 @@
 from Utilities.Switch import Switch
 from Game.UnitType import UnitType
 from Utilities.Vector import Vector
+import time
 
 
 class Unit:
@@ -21,6 +22,7 @@ class Unit:
         self.buffed = False
         self.team = team
         self.size = (0, 0)
+        self.last_attack = time.time()                                            # Last time that attacked this unit
 
         self.destination = Vector([self.position.x, self.position.y])
         self.move_x = False                                                     # If it is moving in x-axis
@@ -30,6 +32,7 @@ class Unit:
         self.dead = False
 
         # region STATS
+        self.attack_rate = 1                                                    # Attacks per second
         self.defense = 0
         self.attack = 0
         self.chargeForce = 0
@@ -43,6 +46,16 @@ class Unit:
         # endregion
         self.color = []                                                         # Just for pygame visualization
         self.set_stats()
+
+    def can_move(self):
+        """
+        Return bool indicating if this unit is allowed to move
+        :return: bool
+        """
+        return self.target is None and not self.dead
+
+    def can_attack(self):
+        return time.time() - self.last_attack >= 1 / self.attack_rate
 
     def set_stats(self):
         """
@@ -65,7 +78,7 @@ class Unit:
                 if self.team == 0:
                     self.color = [255, 255, 255]    # Just for pygame visualization
                 else:
-                    self.color = [200, 200, 200]
+                    self.color = [185, 185, 185]
             if t.case(UnitType.HORSE):
                 self.defense = 12
                 self.attack = 12
@@ -81,7 +94,7 @@ class Unit:
                 if self.team == 0:
                     self.color = [0, 0, 0]          # Just for pygame visualization
                 else:
-                    self.color = [55, 55, 55]
+                    self.color = [70, 70, 70]
             if t.case(UnitType.SPEAR):
                 self.defense = 20
                 self.attack = 15
@@ -97,7 +110,7 @@ class Unit:
                 if self.team == 0:
                     self.color = [255, 0, 0]        # Just for pygame visualization
                 else:
-                    self.color = [150, 0, 0]
+                    self.color = [125, 0, 0]
             if t.case(UnitType.BOW):
                 self.defense = 5
                 self.attack = 10
@@ -113,7 +126,7 @@ class Unit:
                 if self.team == 0:
                     self.color = [0, 0, 255]        # Just for pygame visualization
                 else:
-                    self.color = [0, 0, 150]
+                    self.color = [0, 0, 125]
             if t.default():
                 raise Exception("You can't create unit {0} because {1} isn't a valid type.".format(self.id, self.type))
 
@@ -138,6 +151,11 @@ class Unit:
         self.farAttack = function(self.farAttack)
 
     def take_damage(self, damage: int):
+        """
+        Updates self-health subtracting damage and self-dead
+        :param damage: float
+        :return: None
+        """
         self.health -= damage
         self.dead = self.health <= 0
 
@@ -148,19 +166,19 @@ class Unit:
         :return: None
         """
         if destination != self.position:
-            self.moving = True
             self.set_direction(destination)
         self.destination = destination
 
     def move(self, vector: Vector):
         self.position += vector
+        self.moving = self.position == self.destination
 
     def set_direction(self, destination):
         new_direction = Vector.direction(self.position, destination)
         new_direction.normalized()
         self.direction = new_direction
 
-    def clone(self):
+    def clone(self, is_target=False):
         """
         Generate a copy of self unit
         :return: TotalBotWar.Game.Unit.Unit
@@ -173,7 +191,7 @@ class Unit:
         new_unit.buffed = self.buffed
         new_unit.move_x = self.move_x
         new_unit.move_y = self.move_y
-        new_unit.target = self.target if self.target is not None else None
+        new_unit.target = self.target.clone(True) if self.target is not None and not is_target else None
         new_unit.dead = self.dead
 
         return new_unit
