@@ -31,6 +31,16 @@ class Vector:
     def clone(self):
         return Vector(self.value[:])
 
+    def copy_into(self, other_vector):
+        """
+        Copy data from self to other_vector
+        this is more optimal than cloning
+        :param other_vector: TotalBotWar.Utilities.Vector.Vector
+        :return: None
+        """
+        other_vector.x = self.x
+        other_vector.y = self.y
+
     @staticmethod
     def direction(v1, v2):
         """Returns a new vector with direction from v1 to v2"""

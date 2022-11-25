@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 
 class Player(ABC):
     """Abstract base class for an entity with a defined behaviour for playing a `TotalBotWar.Game.Game.Game`."""
+    def __init__(self, heuristic=None):
+        self.heuristic = heuristic
 
     @abstractmethod
     def think(self, observation: "TotalBotWar.Game.Observation.Observation", budget: float) \

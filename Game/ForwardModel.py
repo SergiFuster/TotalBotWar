@@ -1,21 +1,22 @@
 from typing import Union
 from Utilities.Vector import Vector
 import time
+import random
 
 
 class ForwardModel:
 
-    def step(self, game_state):
+    def step(self, frame_state):
         """
         Performs a game step, move or attack with each unit
-        :param game_state: TotalBotWar.Game.GameState.GameState
+        :param frame_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
         :return: None
         """
-        units = game_state.player_0_units + game_state.player_1_units
-
+        units = frame_state.player_0_units + frame_state.player_1_units
+        random.shuffle(units)
         # Charge execution and fighting state updater
-        for unit_p0 in game_state.player_0_units:
-            for unit_p1 in game_state.player_1_units:
+        for unit_p0 in frame_state.player_0_units:
+            for unit_p1 in frame_state.player_1_units:
                 # Unit doesn't update target until finishing with actual one
                 if (not unit_p0.moving and not unit_p1.moving) or unit_p0.dead or unit_p1.dead:
                     continue
@@ -28,11 +29,11 @@ class ForwardModel:
             if unit.dead:
                 continue
             if unit.can_move():
-                self.move_unit(unit, game_state.game_parameters)
+                self.move_unit(unit, frame_state.game_parameters)
             elif unit.target is not None and unit.can_attack():
                 self.attack(unit)
 
-        game_state.is_terminal = self.is_terminal(game_state)
+        frame_state.is_terminal = self.is_terminal(frame_state)
 
     def attack(self, unit):
         """
@@ -43,8 +44,9 @@ class ForwardModel:
         if unit.target.dead:
             unit.target = None
         else:
+            attack_bonus = 2 if self.bonus_by_type(unit.type, unit.target.type) else 1
             unit.last_attack = time.time()
-            damage = unit.attack - unit.target.defense / 2
+            damage = unit.attack * attack_bonus - unit.target.defense / 2
             unit.target.take_damage(damage)
 
     def manage_intersection(self, unit0, unit1):
@@ -60,8 +62,6 @@ class ForwardModel:
             # If it is moving and its target is in front of him
             if unit0.moving and angle_to_target < 90:
                 self.charge(unit0, unit1)
-            unit0.set_destination(unit0.position)
-            unit0.target = unit1
 
         if unit1.target is None:
             direction_to_target = Vector.direction(unit1.position, unit0.position)
@@ -69,8 +69,10 @@ class ForwardModel:
             # If it is moving and its target is in front of him
             if unit1.moving and angle_to_target < 90:
                 self.charge(unit1, unit0)
-            unit1.set_destination(unit1.position)
-            unit1.target = unit0
+
+        # Update the stats at the end so as not to affect the unit1 direction prior its charge
+        unit0.try_set_target(unit1)
+        unit1.try_set_target(unit0)
 
     def charge(self, unit0, unit1):
         """
@@ -83,7 +85,9 @@ class ForwardModel:
         angle_of_impact = Vector.angle(unit1.direction, direction_of_impact)
         # If impact is from behind or sides, resistance is reduced
         resistance_reduction = 1 if angle_of_impact < 90 else 3
-        impact_bonus = self.get_impact_bonus_types(unit0.type, unit1.type)
+
+        impact_bonus = 10 if self.bonus_by_type(unit0.type, unit1.type) else 1
+
         print("Charger type: {0} \nReceiver type: {1} \nAngle of impact: {2}".format(unit0.type, unit1.type,
                                                                                      angle_of_impact))
         print("Charger force: {0} \nReceiver resistance: {1} \nImpact bonus: {2} \n"
@@ -92,6 +96,7 @@ class ForwardModel:
                                                                                    impact_bonus,
                                                                                    resistance_reduction))
         print()
+
         damage = (unit0.chargeForce * impact_bonus) - (unit1.chargeResistance / resistance_reduction)
 
         # Avoiding add life if unit1 have much chargeResistance
@@ -99,7 +104,7 @@ class ForwardModel:
 
         unit1.take_damage(damage)
 
-    def get_impact_bonus_types(self, type_charger, type_receiver):
+    def bonus_by_type(self, type_charger, type_receiver):
         """
         Get a number that indicates if charger have type bonus over receiver
         :param type_charger: TotalBotWar.Game.UnitType.UnitType
@@ -112,35 +117,47 @@ class ForwardModel:
                 str(type_charger) == "HORSE" and str(type_receiver) == "SWORD" or \
                 str(type_receiver) == "BOW":
 
-            return 10
+            return True
 
         else:
-            return 1
+            return False
 
-    def test(self, observation: "TotalBotWar.Game.Observation.Observation", action: "TotalBotWar.Game.Action.Action"):
-        observation.is_terminal = self.is_terminal()
-        pass
+    def simulate(self, observation: "TotalBotWar.Game.Observation.Observation",
+                 action: "TotalBotWar.Game.Action.Action", seconds=1):
+        """
+        Play an action and simulate game for seconds as if no one was playing any further action
+        Modify the observation passed as an argument
+        :param observation: TotalBotWar.Game.Observation.Observation
+        :param action: TotalBotWar.Game.Action.Action
+        :param seconds: int
+        :return: None
+        """
+        self.process_action(observation, action)
+        iterations = observation.game_parameters.frame_rate * seconds
+        while not observation.is_terminal and iterations > 0:
+            self.step(observation)
+            iterations -= 1
 
-    def process_action(self, game_state, action):
+    def process_action(self, frame_state, action):
         """
         If new destination and action is valid, set destination of unit as its new destination
-        :param game_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
+        :param frame_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
         :param action: TotalBotWar.Game.Observation.Observation
         :return: None
         """
-        game_state.turn = (game_state.turn + 3) % 2
+        frame_state.turn = (frame_state.turn + 3) % 2
 
         if action is None:
             return
 
         # (game_state.turn + 3) % 2 it's the opposite turn of game_state.turn
-        unit = self.get_unit_by_id_and_turn(game_state, action.unit.id, (game_state.turn + 3) % 2)
+        unit = self.get_unit_by_id_and_turn(frame_state, action.unit.id, (frame_state.turn + 3) % 2)
 
         # This statement is temporal, cause move unit that is fighting is still allowed
         if unit.target is not None:
             return
 
-        if self.valid_destination(game_state.game_parameters.screen_size, action.destination):
+        if self.valid_destination(frame_state.game_parameters.screen_size, action.destination):
             unit.set_destination(action.destination)
 
     def get_unit_by_id_and_turn(self, game_state, id, turn):

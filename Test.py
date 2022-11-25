@@ -1,10 +1,8 @@
-from Game.Unit import Unit
-from Game.UnitType import UnitType
-from Game.Action import Action
 from Game.Game import Game
 from Game.GameParameters import GameParameters
 from Players.RandomPlayer import RandomPlayer
-from Game.ForwardModel import ForwardModel
+from Players.OSLAPlayer import OSLAPlayer
+from Heuristics.SimpleHeuristic import SimpleHeuristic
 from Players.AlwaysStraightPlayer import AlwaysStraightPlayer
 
 LINE = "-----------------------------------------------------------------------------"
@@ -62,9 +60,8 @@ HUD = True
 budged = 1
 game_parameters = GameParameters()
 game = Game(game_parameters)
-forward_model = ForwardModel()
-players = [AlwaysStraightPlayer(), RandomPlayer()]
-game.run(players, forward_model, verbose, budged, debug, HUD)
+players = [OSLAPlayer(SimpleHeuristic()), RandomPlayer()]
+game.run(players, verbose, budged, debug, HUD)
 
 
 

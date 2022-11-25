@@ -135,6 +135,17 @@ class Unit:
         self.set_stats()
         self.health = last_health
 
+    def try_set_target(self, unit):
+        """
+        Updates the appropriate attributes when a new target is assigned
+        :param unit: TotalBotWar.Game.Unit.Unit - unit that must be assigned as a target
+        :return: None
+        """
+        if self.target is None and not self.dead:
+            self.set_destination(self.position)
+            self.target = unit
+            self.set_direction(unit.position)
+
     def modify_stats(self, function):
         """
         Modify the stats with function passed as argument except the life
@@ -150,6 +161,29 @@ class Unit:
         self.attackDistance = function(self.attackDistance)
         self.farAttack = function(self.farAttack)
 
+    def copy_into(self, other_unit, target=False):
+        """
+        Copy mutable data from self to other_unit
+        this is more optimal than cloning
+        :param target: bool
+        :param other_unit: TotalBotWar.Game.Unit.Unit
+        :return: None
+        """
+        self.position.copy_into(other_unit.position)
+        other_unit.moving = self.moving
+        other_unit.buffed = self.buffed
+        other_unit.last_attack = self.last_attack
+        self.destination.copy_into(other_unit.destination)
+        other_unit.move_x = self.move_x
+        other_unit.move_y = self.move_y
+        self.direction.copy_into(other_unit.direction)
+        if not target and self.target is not None:
+            self.target.copy_into(other_unit.target, True)
+        else:
+            other_unit.target = None
+        other_unit.dead = self.dead
+        other_unit.health = self.health
+
     def take_damage(self, damage: int):
         """
         Updates self-health subtracting damage and self-dead
@@ -157,7 +191,17 @@ class Unit:
         :return: None
         """
         self.health -= damage
-        self.dead = self.health <= 0
+        if self.health <= 0:
+            self.manage_death()
+
+    def manage_death(self):
+        """
+        Updates all necessary attributes when the death of the unit itself occurs
+        :return: None
+        """
+        self.set_destination(self.position)
+        self.dead = True
+        self.target = None
 
     def set_destination(self, destination: Vector) -> None:
         """
@@ -173,9 +217,13 @@ class Unit:
         self.position += vector
         self.moving = self.position == self.destination
 
-    def set_direction(self, destination):
-        new_direction = Vector.direction(self.position, destination)
-        new_direction.normalized()
+    def set_direction(self, position):
+        """
+        Assigns self-direction as the direction between self-position and position
+        :param position: TotalBotWar.Utilities.Vector.Vector
+        :return: None
+        """
+        new_direction = Vector.direction(self.position, position).normalized()
         self.direction = new_direction
 
     def clone(self, is_target=False):
@@ -197,19 +245,4 @@ class Unit:
         return new_unit
 
     def __str__(self):
-        return ("I am a {0} with ID {1} and stats: \n"
-                "{2} defense,\n"
-                "{3} attack,\n"
-                "{4} charge force,\n"
-                "{5} charge resistance,\n"
-                "{6} velocity,\n"
-                "{7} life,\n"
-                "{8} far resistance,\n"
-                "{9} attack distance,\n"
-                "{10} far attack,\n"
-                "{11} color.\n"
-                "And my position is x: {12} and y: {13} ".format(self.type.name, self.id, self.defense, self.attack,
-                                                                 self.chargeForce, self.chargeResistance, self.velocity,
-                                                                 self.health, self.farResistance, self.attackDistance,
-                                                                 self.farAttack, self.color,
-                                                                 self.position.x, self.position.y))
+        return "I am a {0} of team {1}".format(self.id, self.team)

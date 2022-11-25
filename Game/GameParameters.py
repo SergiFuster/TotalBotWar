@@ -1,10 +1,11 @@
 from Game.UnitType import UnitType
 from Game.Troop import Troop
+from Game.ForwardModel import ForwardModel
 
 
 class GameParameters:
     def __init__(self, troops=None, screen_size=(1000, 500),
-                 screen_portions_horizontally=10, screen_portions_vertically=10):
+                 screen_portions_horizontally=10, screen_portions_vertically=10, frame_rate=100):
         """
         This is class-keeper to group every game modifiable parameters in one site
         :param troops: array of Troop to know which kind of troop and where position it
@@ -25,10 +26,12 @@ class GameParameters:
         self.screen_portions_vertically = screen_portions_vertically
         self.screen_size = screen_size
         self.troops = troops
+        self.frame_rate = frame_rate
+        self.forward_model = ForwardModel()
 
     def clone(self):
         new_troops = []
         for troop in self.troops:
             new_troops.append(troop.clone())
         return GameParameters(new_troops, self.screen_size[:], self.screen_portions_horizontally,
-                              self.screen_portions_vertically)
+                              self.screen_portions_vertically, self.frame_rate)
