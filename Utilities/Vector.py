@@ -107,7 +107,7 @@ class Vector:
         return Vector([other.values[i] + self.values[i] for i in range(len(self))])
 
     def __str__(self):
-        return str(self.values)
+        return str(self.values) + "- Vector: {0} - List of Values: {1}".format(hex(id(self)), hex((id(self.value))))
 
     def __len__(self):
         """Return the dimension of the vector"""

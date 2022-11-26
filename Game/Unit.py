@@ -211,7 +211,7 @@ class Unit:
         """
         if destination != self.position:
             self.set_direction(destination)
-        self.destination = destination
+        self.destination = destination.clone()
 
     def move(self, vector: Vector):
         self.position += vector
@@ -245,4 +245,4 @@ class Unit:
         return new_unit
 
     def __str__(self):
-        return "I am a {0} of team {1}".format(self.id, self.team)
+        return "I am a {0} of team {1} - {2}".format(self.id, self.team, hex(id(self)))

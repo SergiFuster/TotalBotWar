@@ -25,3 +25,6 @@ class AlwaysStraightPlayer(Player):
                     return Action(unit, unit.position.x, observation.game_parameters.screen_size[1])
             # print("Destination is not equal position")
         return None
+
+    def __str__(self):
+        return "AlwaysStraightPlayer"

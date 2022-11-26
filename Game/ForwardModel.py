@@ -122,8 +122,8 @@ class ForwardModel:
         else:
             return False
 
-    def simulate(self, observation: "TotalBotWar.Game.Observation.Observation",
-                 action: "TotalBotWar.Game.Action.Action", seconds=1):
+    def simulate_seconds(self, observation: "TotalBotWar.Game.Observation.Observation",
+                         action: "TotalBotWar.Game.Action.Action", seconds=1):
         """
         Play an action and simulate game for seconds as if no one was playing any further action
         Modify the observation passed as an argument
@@ -137,6 +137,21 @@ class ForwardModel:
         while not observation.is_terminal and iterations > 0:
             self.step(observation)
             iterations -= 1
+
+    def simulate_frames(self, observation: "TotalBotWar.Game.Observation.Observation",
+                        action: "TotalBotWar.Game.Action.Action", frames=1):
+        """
+        Play an action and simulate game for frames as if no one was playing any further action
+        Modify the observation passed as an argument
+        :param observation: TotalBotWar.Game.Observation.Observation
+        :param action: TotalBotWar.Game.Action.Action
+        :param frames: int
+        :return: None
+        """
+        self.process_action(observation, action)
+        while not observation.is_terminal and frames > 0:
+            self.step(observation)
+            frames -= 1
 
     def process_action(self, frame_state, action):
         """

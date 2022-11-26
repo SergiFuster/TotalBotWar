@@ -9,11 +9,11 @@ class Action:
         :param x: x-axis where is going the Unit
         :param y: y-axis where is going the Unit
         """
-        self.unit = unit
-        self.destination = Vector([x, y])
+        self.unit = unit.clone()
+        self.destination = Vector([x, y]).clone()
 
     def __str__(self):
-        return "{0} {1} {2}".format(self.unit.id, self.destination.x, self.destination.y)
+        return "{0}, [{1}, {2}] - {3}".format(self.unit.id, self.destination.x, self.destination.y, hex(id(self)))
 
     def __eq__(self, other):
         """

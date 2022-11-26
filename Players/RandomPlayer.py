@@ -24,3 +24,6 @@ class RandomPlayer(Player):
             action = Action(random_unit, random_unit.destination.x, random_unit.destination.y)
 
         return action
+
+    def __str__(self):
+        return "RandomPlayer"

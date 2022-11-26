@@ -4,6 +4,7 @@ from Players.RandomPlayer import RandomPlayer
 from Players.OSLAPlayer import OSLAPlayer
 from Heuristics.SimpleHeuristic import SimpleHeuristic
 from Players.AlwaysStraightPlayer import AlwaysStraightPlayer
+from Players.AlwaysStoppedPlayer import AlwaysStoppedPlayer
 
 LINE = "-----------------------------------------------------------------------------"
 
@@ -60,7 +61,7 @@ HUD = True
 budged = 1
 game_parameters = GameParameters()
 game = Game(game_parameters)
-players = [OSLAPlayer(SimpleHeuristic()), RandomPlayer()]
+players = [RandomPlayer(), RandomPlayer()]
 game.run(players, verbose, budged, debug, HUD)
 
 
