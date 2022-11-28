@@ -14,7 +14,6 @@ class Observation:
             self.game_parameters = game_state.game_parameters.clone()
             self.player_0_units = self.clone_list_of_units(game_state.player_0_units)
             self.player_1_units = self.clone_list_of_units(game_state.player_1_units)
-            self.is_terminal = game_state.is_terminal
             self.turn = game_state.turn
 
             if self.turn == 0:
@@ -166,3 +165,19 @@ class Observation:
                     available_units.append(unit)
         return available_units
 
+    def is_terminal(self):
+        some_unit_alive = False
+        for unit in self.player_0_units:
+            if not unit.dead:
+                some_unit_alive = True
+        if not some_unit_alive:
+            return True
+
+        some_unit_alive = False
+        for unit in self.player_1_units:
+            if not unit.dead:
+                some_unit_alive = True
+        if not some_unit_alive:
+            return True
+
+        return self.game_parameters.remaining_time <= 0

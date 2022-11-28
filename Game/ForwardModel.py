@@ -17,8 +17,19 @@ class ForwardModel:
         # Charge execution and fighting state updater
         for unit_p0 in frame_state.player_0_units:
             for unit_p1 in frame_state.player_1_units:
+
+                if unit_p0.dead or unit_p1.dead:
+                    continue
+
+                # Check if archer have any near enough to shoot
+                if str(unit_p0.type) == "BOW":
+                    self.check_archer(unit_p0, unit_p1)
+
+                if str(unit_p1.type) == "BOW":
+                    self.check_archer(unit_p1, unit_p0)
+
                 # Unit doesn't update target until finishing with actual one
-                if (not unit_p0.moving and not unit_p1.moving) or unit_p0.dead or unit_p1.dead:
+                if not unit_p0.moving and not unit_p1.moving:
                     continue
 
                 if self.intersect(unit_p0, unit_p1):
@@ -30,10 +41,41 @@ class ForwardModel:
                 continue
             if unit.can_move():
                 self.move_unit(unit, frame_state.game_parameters)
-            elif unit.target is not None and unit.can_attack():
-                self.attack(unit)
+            elif unit.can_attack():
+                if str(unit.type) == "BOW":
+                    self.archer_attack(unit, frame_state)
+                else:
+                    self.attack(unit)
 
-        frame_state.is_terminal = self.is_terminal(frame_state)
+    def check_archer(self, archer, target):
+        """
+        Checks if target is on range and updates it if so
+        :param archer: TotalBotWar.Game.Unit.Unit
+        :param target: TotalBotWar.Game.Unit.Unit
+        :return: None
+        """
+        distance = Vector.distance(archer.position, target.position)
+        if distance <= archer.attackDistance:
+            archer.try_set_target(target)
+
+    def archer_attack(self, archer, frame_state):
+        """
+        Executes attack from archer to its target and all around it
+        :param frame_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
+        :param archer: TotalBotWar.Game.Unit.Unit
+        :return: None
+        """
+        if archer.target.dead or Vector.distance(archer.position, archer.target.position) > archer.attackDistance:
+            archer.target = None
+        else:
+            enemy_units = frame_state.player_0_units if archer.team == 1 else frame_state.player_1_units
+            for unit in enemy_units:
+                distance = Vector.distance(unit.position, archer.target.position)
+                if distance <= archer.spread_attack_radius:
+                    attack_bonus = 2 if self.bonus_by_type(archer.type, unit.type) else 1
+                    damage = archer.farAttack * attack_bonus - unit.farResistance / 2
+                    unit.take_damage(damage)
+            archer.last_attack = time.time()
 
     def attack(self, unit):
         """
@@ -134,7 +176,7 @@ class ForwardModel:
         """
         self.process_action(observation, action)
         iterations = observation.game_parameters.frame_rate * seconds
-        while not observation.is_terminal and iterations > 0:
+        while not observation.is_terminal() and iterations > 0:
             self.step(observation)
             iterations -= 1
 

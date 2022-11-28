@@ -8,15 +8,17 @@ WHITE = [255, 255, 255]
 RED = [255, 0, 0]
 MAGENTA = [255, 0, 255]
 BLACK = [0, 0, 0]
+YELLOW = [255, 255, 0]
 
 
 class GUI:
-    def __init__(self, screen_size, screen_name):
+    def __init__(self, screen_size, screen_name, draw_death_units):
         self.screen_size = screen_size
         self.screen_name = screen_name
         self.display = None
+        self.draw_death_units = draw_death_units
         self.screen_open = False
-        self.text_size = 12
+        self.text_size = 20
         self.font = None
         self.pause = False
         self.health_bar_width = 20
@@ -32,10 +34,11 @@ class GUI:
         self.screen_open = True
         self.font = pygame.font.SysFont(pygame.font.get_fonts()[4], self.text_size)
 
-    def draw_screen(self, units, debug, hud):
+    def draw_screen(self, units, debug, hud, remaining_time):
 
         """
         Initialize self-display once, manage window events and draw units, debug and hud
+        :param remaining_time: float with time left
         :param units: List of TotalBotWar.Game.Unit.Unit
         :param debug: Bool
         :param hud: Bool
@@ -49,7 +52,10 @@ class GUI:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONUP:
-                self.pause = not self.pause
+                pass
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.pause = not self.pause
 
         if self.pause:
             return self.pause
@@ -57,12 +63,15 @@ class GUI:
         self.display.fill(BACKGROUND_GRAY)
         for unit in units:
 
-            self.draw_unit(unit)
+            if not unit.dead or self.draw_death_units:
+                self.draw_unit(unit)
+                if debug:
+                    self.draw_debug(unit)
+                if hud:
+                    self.draw_hud_unit(unit)
 
-            if debug:
-                self.draw_debug(unit)
-            if hud:
-                self.draw_hud(unit)
+        if hud:
+            self.draw_hud(remaining_time)
 
         pygame.display.flip()
 
@@ -91,10 +100,16 @@ class GUI:
         pygame.draw.line(self.display, MAGENTA, unit.position.values,
                          (unit.position + (unit.direction.normalized() * self.direction_line_longitude)).values,
                          2)
+        # region ARCHER
+        if str(unit.type) == "BOW":
+            pygame.draw.circle(self.display, RED, unit.position.values, unit.attackDistance, 1)
+            if unit.target is not None:
+                pygame.draw.circle(self.display, YELLOW, unit.target.position.values, unit.spread_attack_radius, 1)
+        # endregion
 
-    def draw_hud(self, unit):
+    def draw_hud_unit(self, unit):
         """
-        Draw hud graphics (life and id)
+        Draw hud graphics (life and id) for units
         :param unit: TotalBotWar.Game.Unit.Unit
         :return: None
         """
@@ -120,17 +135,29 @@ class GUI:
         pygame.draw.rect(self.display, RED, red_rect)
         pygame.draw.rect(self.display, GREEN, green_rect)"""
         # endregion
-        # region Instructions
-        freeze = self.font.render("C l i c k  t o  f r e e z e / u n f r e e z e  t h e  g a m e", True, BLACK)
-        pos_text = [10, 10]
-        self.display.blit(freeze, pos_text)
-        # endregion
         # region FIGHT
         if unit.target is not None:
             swords_pos = unit.position.values
-            swords_pos[0] -= self.swords.get_width()/2
-            swords_pos[1] -= self.swords.get_height()/2
+            swords_pos[0] -= self.swords.get_width() / 2
+            swords_pos[1] -= self.swords.get_height() / 2
             self.display.blit(self.swords, swords_pos)
+        # endregion
+
+    def draw_hud(self, remaining_time):
+        """
+        Draw hud graphics (time and options)
+        :param remaining_time: float
+        :return: None
+        """
+        # region TIME
+        time = self.font.render("{0:.0f}".format(remaining_time), True, BLACK)
+        pos_text = [self.screen_size[0] - time.get_width() - 10, 10]
+        self.display.blit(time, pos_text)
+        # endregion
+        # region Instructions
+        freeze = self.font.render("S p a c e  t o  f r e e z e / u n f r e e z e  t h e  g a m e", True, BLACK)
+        pos_text = [10, 10]
+        self.display.blit(freeze, pos_text)
         # endregion
 
     def close_screen(self):

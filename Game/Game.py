@@ -9,7 +9,7 @@ class Game:
     def __init__(self, parameters):
         self.game_state = GameState(parameters)
         self.reset()
-        self.gui = GUI(parameters.screen_size, "TotalBotWar")  # Just for pygame version
+        self.gui = GUI(parameters.screen_size, "TotalBotWar", False)  # Just for pygame version
         self.pause = False      # Just for pygame version
 
     def reset(self):
@@ -26,14 +26,16 @@ class Game:
             print(unit, "\n")
 
         last_time = time.time()
-
-        while not self.game_state.is_terminal:
+        self.game_state.game_parameters.set_start_time(time.time())
+        while not self.game_state.is_terminal():
+            self.game_state.game_parameters.update_elapsed_time(time.time())            # Update times
             time.sleep(1/self.game_state.game_parameters.frame_rate)
             t = time.time()
             if verbose:
                 pause = self.gui.draw_screen(self.game_state.player_0_units +
                                              self.game_state.player_1_units,
-                                             debug, hud)  # Just for pygame version
+                                             debug, hud,
+                                             self.game_state.game_parameters.remaining_time)  # Just for pygame version
 
             if pause:
                 continue

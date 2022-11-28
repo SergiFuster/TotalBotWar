@@ -22,7 +22,7 @@ class Unit:
         self.buffed = False
         self.team = team
         self.size = (0, 0)
-        self.last_attack = time.time()                                            # Last time that attacked this unit
+        self.last_attack = time.time()                                          # Last time that attacked this unit
 
         self.destination = Vector([self.position.x, self.position.y])
         self.move_x = False                                                     # If it is moving in x-axis
@@ -43,6 +43,7 @@ class Unit:
         self.farResistance = 0
         self.attackDistance = 0
         self.farAttack = 0
+        self.spread_attack_radius = 0
         # endregion
         self.color = []                                                         # Just for pygame visualization
         self.set_stats()
@@ -55,7 +56,7 @@ class Unit:
         return self.target is None and not self.dead
 
     def can_attack(self):
-        return time.time() - self.last_attack >= 1 / self.attack_rate
+        return self.target is not None and time.time() - self.last_attack >= 1 / self.attack_rate
 
     def set_stats(self):
         """
@@ -75,6 +76,7 @@ class Unit:
                 self.farResistance = 10
                 self.attackDistance = 10
                 self.farAttack = 0
+                self.attackDistance = 10
                 if self.team == 0:
                     self.color = [255, 255, 255]    # Just for pygame visualization
                 else:
@@ -91,6 +93,7 @@ class Unit:
                 self.farResistance = 30
                 self.attackDistance = 10
                 self.farAttack = 0
+                self.attackDistance = 10
                 if self.team == 0:
                     self.color = [0, 0, 0]          # Just for pygame visualization
                 else:
@@ -107,6 +110,7 @@ class Unit:
                 self.farResistance = 30
                 self.attackDistance = 10
                 self.farAttack = 0
+                self.attackDistance = 10
                 if self.team == 0:
                     self.color = [255, 0, 0]        # Just for pygame visualization
                 else:
@@ -121,8 +125,9 @@ class Unit:
                 self.health = 100
                 self.max_health = self.health
                 self.farResistance = 10
-                self.attackDistance = 450
+                self.attackDistance = 100
                 self.farAttack = 20
+                self.spread_attack_radius = 50
                 if self.team == 0:
                     self.color = [0, 0, 255]        # Just for pygame visualization
                 else:
@@ -190,6 +195,7 @@ class Unit:
         :param damage: float
         :return: None
         """
+        damage = 0 if damage < 0 else damage
         self.health -= damage
         if self.health <= 0:
             self.manage_death()

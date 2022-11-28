@@ -11,7 +11,6 @@ class GameState:
         self.game_parameters = game_parameters
         self.player_0_units = []
         self.player_1_units = []
-        self.is_terminal = False
         self.turn = 0
 
     def get_observation(self) -> "TotalBotWar.Game.Observation.Observation":
@@ -50,3 +49,21 @@ class GameState:
             id += 1
 
         self.turn = 0
+
+    def is_terminal(self):
+
+        some_unit_alive = False
+        for unit in self.player_0_units:
+            if not unit.dead:
+                some_unit_alive = True
+        if not some_unit_alive:
+            return True
+
+        some_unit_alive = False
+        for unit in self.player_1_units:
+            if not unit.dead:
+                some_unit_alive = True
+        if not some_unit_alive:
+            return True
+
+        return self.game_parameters.remaining_time <= 0
