@@ -13,12 +13,8 @@ ORANGE = [255, 165, 0]
 
 
 class GUI:
-    def __init__(self, screen_size, screen_name, show_death_units=False,
-                 show_destinations=False, show_buff_range=False,
-                 show_archer_range=False, show_directions=False,
-                 show_ids=False, show_health=False, show_buffed_indicator=False,
-                 show_remaining_time=False, show_instructions=False):
-        self.screen_size = screen_size
+    def __init__(self, game_parameters, screen_name, ):
+        self.game_parameters = game_parameters
         self.screen_name = screen_name
         self.display = None
         self.screen_open = False
@@ -30,32 +26,20 @@ class GUI:
         self.direction_line_longitude = 10
         self.swords = pygame.image.load("Images/crossed_swords.png")
         self.swords = pygame.transform.scale(self.swords, (50, 50))
-        self.show_death_units = show_death_units
-        self.show_destinations = show_destinations
-        self.show_buff_range = show_buff_range
-        self.show_archer_range = show_archer_range
-        self.show_directions = show_directions
-        self.show_ids = show_ids
-        self.show_health = show_health
-        self.show_buffed_indicator = show_buffed_indicator
-        self.show_remaining_time = show_remaining_time
-        self.show_instructions = show_instructions
 
     def start_screen(self):
         pygame.init()
-        self.display = pygame.display.set_mode(self.screen_size)
+        self.display = pygame.display.set_mode(self.game_parameters.screen_size)
         pygame.display.set_caption(self.screen_name)
         self.screen_open = True
         self.font = pygame.font.SysFont(pygame.font.get_fonts()[4], self.text_size)
 
-    def draw_screen(self, units,debug, hud, remaining_time):
+    def draw_screen(self, units, remaining_time):
 
         """
         Initialize self-display once, manage window events and draw units, debug and hud
-        :param remaining_time: float with time left
         :param units: List of TotalBotWar.Game.Unit.Unit
-        :param debug: Bool
-        :param hud: Bool
+        :param remaining_time: float with time left
         :return: bool that indicates if game is paused
         """
         if not self.screen_open:
@@ -75,17 +59,12 @@ class GUI:
             return self.pause
 
         self.display.fill(BACKGROUND_GRAY)
+
+        self.draw_hud(remaining_time)
+
         for unit in units:
-
-            if not unit.dead or self.draw_death_units:
+            if not unit.dead or self.game_parameters.show_death_units:
                 self.draw_unit(unit)
-                if debug:
-                    self.draw_debug(unit)
-                if hud:
-                    self.draw_hud_unit(unit)
-
-        if hud:
-            self.draw_hud(remaining_time)
 
         pygame.display.flip()
 
@@ -102,71 +81,70 @@ class GUI:
 
         pygame.draw.rect(self.display, unit.color, unit_sprite)
 
-    def draw_debug(self, unit):
-        """
-        Draw debug graphics
-        :param unit: TotalBotWar.Game.Unit.Unit
-        :return: None
-        """
-        # Destination position and direction
-        pygame.draw.line(self.display, GREEN, unit.position.values, unit.destination.values, 1)
-        # Unit direction
-        pygame.draw.line(self.display, MAGENTA, unit.position.values,
-                         (unit.position + (unit.direction.normalized() * self.direction_line_longitude)).values,
-                         2)
-        # region ARCHER
-        if str(unit.type) == "BOW":
+        # region DEBUG AND HUD
+        # region ID
+        if self.game_parameters.show_ids:
+            id = self.font.render(str(unit.id), True, WHITE)
+            pos_text = unit.position.values
+            pos_text[0] -= id.get_width() / 2
+            pos_text[1] += unit.size[1] / 2
+            self.display.blit(id, pos_text)
+        # endregion
+        # region HEALTH
+        if self.game_parameters.show_health:
+            health = self.font.render("{0:.1f}".format(unit.health), True, GREEN)
+            pos_health = unit.position.values
+            pos_health[0] -= health.get_width() / 2
+            pos_health[1] -= unit.size[1] / 2 + health.get_height()
+            self.display.blit(health, pos_health)
+            """pos_health[1] -= unit.size[1] / 2 + self.health_bar_height + 5
+            pos_health[0] -= self.health_bar_width / 2
+            green_rect = pygame.Rect(pos_health[0], pos_health[1],
+                                     int(unit.health / unit.max_health * self.health_bar_width), self.health_bar_height)
+            red_rect = pygame.Rect(pos_health[0], pos_health[1],
+                                   self.health_bar_width, self.health_bar_height)
+            pygame.draw.rect(self.display, RED, red_rect)
+            pygame.draw.rect(self.display, GREEN, green_rect)"""
+        # endregion
+        # region RANGE
+        if self.game_parameters.show_archer_range and str(unit.type) == "BOW":
             pygame.draw.circle(self.display, RED, unit.position.values, unit.attackDistance, 1)
             if unit.target is not None:
                 pygame.draw.circle(self.display, YELLOW, unit.target.position.values, unit.spread_attack_radius, 1)
         # endregion
-
-    def draw_hud_unit(self, unit):
-        """
-        Draw hud graphics (life and id) for units
-        :param unit: TotalBotWar.Game.Unit.Unit
-        :return: None
-        """
-        # region IDs
-        id = self.font.render(str(unit.id), True, WHITE)
-        pos_text = unit.position.values
-        pos_text[0] -= id.get_width() / 2
-        pos_text[1] += unit.size[1]/2
-        self.display.blit(id, pos_text)
+        # region BUFF
+        if self.game_parameters.show_buff_range and str(unit.type) == "GENERAL":
+            if str(unit.type) == "GENERAL":
+                if unit.can_buff():
+                    pygame.draw.circle(self.display, ORANGE, unit.position.values, unit.buff_radius)
+                else:
+                    pygame.draw.circle(self.display, ORANGE, unit.position.values, unit.buff_radius, 1)
+        if self.game_parameters.show_buffed_indicator:
+            if unit.buffed:
+                points = [(unit.position.x - unit.size[0] / 2, unit.position.y - unit.size[1] / 2 - 2),
+                          (unit.position.x - unit.size[0] / 2 + 2, unit.position.y - unit.size[1] / 2 - 4),
+                          (unit.position.x - unit.size[0] / 2 + 4, unit.position.y - unit.size[1] / 2 - 2)]
+                pygame.draw.polygon(self.display, YELLOW, points)
         # endregion
-        # region HEALTH
-        health = self.font.render("{0:.1f}".format(unit.health), True, GREEN)
-        pos_health = unit.position.values
-        pos_health[0] -= health.get_width() / 2
-        pos_health[1] -= unit.size[1]/2 + health.get_height()
-        self.display.blit(health, pos_health)
-        """pos_health[1] -= unit.size[1] / 2 + self.health_bar_height + 5
-        pos_health[0] -= self.health_bar_width / 2
-        green_rect = pygame.Rect(pos_health[0], pos_health[1],
-                                 int(unit.health / unit.max_health * self.health_bar_width), self.health_bar_height)
-        red_rect = pygame.Rect(pos_health[0], pos_health[1],
-                               self.health_bar_width, self.health_bar_height)
-        pygame.draw.rect(self.display, RED, red_rect)
-        pygame.draw.rect(self.display, GREEN, green_rect)"""
+        # region DESTINATION
+        if self.game_parameters.show_destinations:
+            # Destination position
+            pygame.draw.line(self.display, GREEN, unit.position.values, unit.destination.values, 1)
         # endregion
         # region FIGHT
-        if unit.target is not None:
+        if self.game_parameters.show_fight_indicator and unit.target is not None:
             swords_pos = unit.position.values
             swords_pos[0] -= self.swords.get_width() / 2
             swords_pos[1] -= self.swords.get_height() / 2
             self.display.blit(self.swords, swords_pos)
         # endregion
-        # region BUFF
-        if str(unit.type) == "GENERAL":
-            if unit.can_buff():
-                pygame.draw.circle(self.display, ORANGE, unit.position.values, unit.buff_radius)
-            else:
-                pygame.draw.circle(self.display, ORANGE, unit.position.values, unit.buff_radius, 1)
-        if unit.buffed:
-            points = [(unit.position.x - unit.size[0]/2, unit.position.y - unit.size[1]/2-2),
-                      (unit.position.x - unit.size[0]/2 + 2, unit.position.y - unit.size[1]/2-4),
-                      (unit.position.x - unit.size[0]/2 + 4, unit.position.y - unit.size[1]/2-2)]
-            pygame.draw.polygon(self.display, YELLOW, points)
+        # region DIRECTION
+        if self.game_parameters.show_directions:
+            # Unit direction
+            pygame.draw.line(self.display, MAGENTA, unit.position.values,
+                             (unit.position + (unit.direction.normalized() * self.direction_line_longitude)).values,
+                             2)
+        # endregion
         # endregion
 
     def draw_hud(self, remaining_time):
@@ -176,14 +154,16 @@ class GUI:
         :return: None
         """
         # region TIME
-        time = self.font.render("{0:.0f}".format(remaining_time), True, BLACK)
-        pos_text = [self.screen_size[0] - time.get_width() - 10, 10]
-        self.display.blit(time, pos_text)
+        if self.game_parameters.show_remaining_time:
+            time = self.font.render("{0:.0f}".format(remaining_time), True, BLACK)
+            pos_text = [self.game_parameters.screen_size[0] - time.get_width() - 10, 10]
+            self.display.blit(time, pos_text)
         # endregion
         # region Instructions
-        freeze = self.font.render("S p a c e  t o  f r e e z e / u n f r e e z e  t h e  g a m e", True, BLACK)
-        pos_text = [10, 10]
-        self.display.blit(freeze, pos_text)
+        if self.game_parameters.show_instructions:
+            freeze = self.font.render("S p a c e  t o  f r e e z e / u n f r e e z e  t h e  g a m e", True, BLACK)
+            pos_text = [10, 10]
+            self.display.blit(freeze, pos_text)
         # endregion
 
     def close_screen(self):

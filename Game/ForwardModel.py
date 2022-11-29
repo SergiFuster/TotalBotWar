@@ -14,14 +14,14 @@ class ForwardModel:
         """
         units = frame_state.player_0_units + frame_state.player_1_units
         random.shuffle(units)
-        # Charge execution and fighting state updater
+        # Charge execution and fighting state updater for every combination of 2 units between teams
         for unit_p0 in frame_state.player_0_units:
             for unit_p1 in frame_state.player_1_units:
 
                 if unit_p0.dead or unit_p1.dead:
                     continue
 
-                # Check if archer have any near enough to shoot
+                # Check if archer its close enough to set its target
                 if str(unit_p0.type) == "BOW":
                     self.check_archer(unit_p0, unit_p1)
 
@@ -37,11 +37,17 @@ class ForwardModel:
 
         # Fight or movement execution for every unit
         for unit in units:
+
             if unit.dead:
                 continue
+
             unit.update_buffed_state()      # Undoes the effect of the buff it had if the time of the buff has expired
+
+            # General buff nearby allys every time that he can
             if unit.can_buff():
                 unit.buff(frame_state)
+
+            # Basic actions, move and attack
             if unit.can_move():
                 self.move_unit(unit, frame_state.game_parameters)
             elif unit.can_attack():
@@ -71,6 +77,7 @@ class ForwardModel:
         if archer.target.dead or Vector.distance(archer.position, archer.target.position) > archer.attackDistance:
             archer.target = None
         else:
+            archer.set_direction(archer.target.position)
             enemy_units = frame_state.player_0_units if archer.team == 1 else frame_state.player_1_units
             for unit in enemy_units:
                 distance = Vector.distance(unit.position, archer.target.position)

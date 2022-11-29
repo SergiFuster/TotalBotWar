@@ -56,13 +56,21 @@ print("Action1 == Action3: ", action1 == action3)
 print("Action1 == units[0]: ", action1 == units[0])"""
 
 verbose = True
-debug = True
-HUD = True
 budged = 1
-game_parameters = GameParameters()
+game_parameters = GameParameters(False,
+                                 False,
+                                 False,
+                                 False,
+                                 True,
+                                 True,
+                                 True,
+                                 True,
+                                 True,
+                                 False,
+                                 True)
 game = Game(game_parameters)
 players = [RandomPlayer(), RandomPlayer()]
-game.run(players, verbose, budged, debug, HUD)
+game.run(players, verbose, budged)
 
 
 

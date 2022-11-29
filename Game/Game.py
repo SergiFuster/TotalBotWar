@@ -2,14 +2,13 @@ import time
 
 from Game.GUI.GUI import GUI
 from Game.GameState import GameState
-from Game.Action import Action
 
 
 class Game:
     def __init__(self, parameters):
         self.game_state = GameState(parameters)
         self.reset()
-        self.gui = GUI(parameters.screen_size, "TotalBotWar", False)  # Just for pygame version
+        self.gui = GUI(self.game_state.game_parameters, "TotalBotWar")  # Just for pygame version
         self.pause = False      # Just for pygame version
 
     def reset(self):
@@ -17,8 +16,9 @@ class Game:
         self.game_state.reset()
 
     def run(self, l_players,
-            verbose: bool, budged: float, debug: bool, hud: bool):
+            verbose, budged):
         """Runs a TotalBotWar 'Game'"""
+
         for unit in self.game_state.player_0_units:
             print(unit, "\n")
         print("--------------------------------------------------------")
@@ -34,7 +34,6 @@ class Game:
             if verbose:
                 pause = self.gui.draw_screen(self.game_state.player_0_units +
                                              self.game_state.player_1_units,
-                                             debug, hud,
                                              self.game_state.game_parameters.remaining_time)  # Just for pygame version
 
             if pause:
