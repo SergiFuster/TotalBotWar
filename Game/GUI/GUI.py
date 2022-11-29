@@ -9,14 +9,18 @@ RED = [255, 0, 0]
 MAGENTA = [255, 0, 255]
 BLACK = [0, 0, 0]
 YELLOW = [255, 255, 0]
+ORANGE = [255, 165, 0]
 
 
 class GUI:
-    def __init__(self, screen_size, screen_name, draw_death_units):
+    def __init__(self, screen_size, screen_name, show_death_units=False,
+                 show_destinations=False, show_buff_range=False,
+                 show_archer_range=False, show_directions=False,
+                 show_ids=False, show_health=False, show_buffed_indicator=False,
+                 show_remaining_time=False, show_instructions=False):
         self.screen_size = screen_size
         self.screen_name = screen_name
         self.display = None
-        self.draw_death_units = draw_death_units
         self.screen_open = False
         self.text_size = 20
         self.font = None
@@ -26,6 +30,16 @@ class GUI:
         self.direction_line_longitude = 10
         self.swords = pygame.image.load("Images/crossed_swords.png")
         self.swords = pygame.transform.scale(self.swords, (50, 50))
+        self.show_death_units = show_death_units
+        self.show_destinations = show_destinations
+        self.show_buff_range = show_buff_range
+        self.show_archer_range = show_archer_range
+        self.show_directions = show_directions
+        self.show_ids = show_ids
+        self.show_health = show_health
+        self.show_buffed_indicator = show_buffed_indicator
+        self.show_remaining_time = show_remaining_time
+        self.show_instructions = show_instructions
 
     def start_screen(self):
         pygame.init()
@@ -34,7 +48,7 @@ class GUI:
         self.screen_open = True
         self.font = pygame.font.SysFont(pygame.font.get_fonts()[4], self.text_size)
 
-    def draw_screen(self, units, debug, hud, remaining_time):
+    def draw_screen(self, units,debug, hud, remaining_time):
 
         """
         Initialize self-display once, manage window events and draw units, debug and hud
@@ -141,6 +155,18 @@ class GUI:
             swords_pos[0] -= self.swords.get_width() / 2
             swords_pos[1] -= self.swords.get_height() / 2
             self.display.blit(self.swords, swords_pos)
+        # endregion
+        # region BUFF
+        if str(unit.type) == "GENERAL":
+            if unit.can_buff():
+                pygame.draw.circle(self.display, ORANGE, unit.position.values, unit.buff_radius)
+            else:
+                pygame.draw.circle(self.display, ORANGE, unit.position.values, unit.buff_radius, 1)
+        if unit.buffed:
+            points = [(unit.position.x - unit.size[0]/2, unit.position.y - unit.size[1]/2-2),
+                      (unit.position.x - unit.size[0]/2 + 2, unit.position.y - unit.size[1]/2-4),
+                      (unit.position.x - unit.size[0]/2 + 4, unit.position.y - unit.size[1]/2-2)]
+            pygame.draw.polygon(self.display, YELLOW, points)
         # endregion
 
     def draw_hud(self, remaining_time):

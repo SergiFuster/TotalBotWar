@@ -23,6 +23,7 @@ class Unit:
         self.team = team
         self.size = (0, 0)
         self.last_attack = time.time()                                          # Last time that attacked this unit
+        self.last_buff = time.time()
 
         self.destination = Vector([self.position.x, self.position.y])
         self.move_x = False                                                     # If it is moving in x-axis
@@ -32,7 +33,7 @@ class Unit:
         self.dead = False
 
         # region STATS
-        self.attack_rate = 1                                                    # Attacks per second
+        self.attack_rate = 1    # Attacks per second
         self.defense = 0
         self.attack = 0
         self.chargeForce = 0
@@ -44,6 +45,11 @@ class Unit:
         self.attackDistance = 0
         self.farAttack = 0
         self.spread_attack_radius = 0
+        self.buff_radius = 0
+        # Is necessary for everyone to make update_buffed_stat works correctly
+        self.buff_ratio = 1.2
+        self.buff_cooldown = 0
+        self.buff_time_duration = 0
         # endregion
         self.color = []                                                         # Just for pygame visualization
         self.set_stats()
@@ -57,6 +63,9 @@ class Unit:
 
     def can_attack(self):
         return self.target is not None and time.time() - self.last_attack >= 1 / self.attack_rate
+
+    def can_buff(self):
+        return self.type == UnitType.GENERAL and time.time() - self.last_buff >= self.buff_cooldown
 
     def set_stats(self):
         """
@@ -132,6 +141,26 @@ class Unit:
                     self.color = [0, 0, 255]        # Just for pygame visualization
                 else:
                     self.color = [0, 0, 125]
+            if t.case(UnitType.GENERAL):
+                self.defense = 10
+                self.attack = 20
+                self.chargeForce = 5
+                self.chargeResistance = 100
+                self.velocity = 0.0668
+                self.size = (20, 20)
+                self.health = 100
+                self.max_health = self.health
+                self.farResistance = 10
+                self.attackDistance = 100
+                self.farAttack = 20
+                self.spread_attack_radius = 50
+                self.buff_radius = 100
+                self.buff_time_duration = 8
+                self.buff_cooldown = 15
+                if self.team == 0:
+                    self.color = [255, 255, 0]        # Just for pygame visualization
+                else:
+                    self.color = [125, 125, 0]
             if t.default():
                 raise Exception("You can't create unit {0} because {1} isn't a valid type.".format(self.id, self.type))
 
@@ -151,9 +180,11 @@ class Unit:
             self.target = unit
             self.set_direction(unit.position)
 
-    def modify_stats(self, function):
+    def modify_stats(self, function, buff, time_buffed=0):
         """
         Modify the stats with function passed as argument except the life
+        :param buff: bool
+        :param time_buffed: float
         :param function: function
         :return: return nothing
         """
@@ -165,6 +196,10 @@ class Unit:
         self.farResistance = function(self.farResistance)
         self.attackDistance = function(self.attackDistance)
         self.farAttack = function(self.farAttack)
+        self.buffed = buff
+        if buff:
+            self.buff_time_duration = time_buffed
+            self.last_buff = time.time()
 
     def copy_into(self, other_unit, target=False):
         """
@@ -218,6 +253,30 @@ class Unit:
         if destination != self.position:
             self.set_direction(destination)
         self.destination = destination.clone()
+
+    def buff(self, frame_state):
+        """
+        Performs an area buff for all nearby allies, himself included
+        :param frame_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
+        :return: None
+        """
+        if self.type != UnitType.GENERAL:
+            return
+
+        ally_units = frame_state.player_0_units if self.team == 0 else frame_state.player_1_units
+        for ally in ally_units:
+            if Vector.distance(self.position, ally.position) <= self.buff_radius:
+                ally.modify_stats(lambda x: x * self.buff_ratio, True, self.buff_time_duration)
+        # self.last_buff is updated on self.modify_stats
+
+    def update_buffed_state(self):
+        """
+        Every frame is called to update self-buffed state to false when
+        buff time is out
+        :return: None
+        """
+        if self.buffed and time.time() - self.last_buff >= self.buff_time_duration:
+            self.modify_stats(lambda x: x / self.buff_ratio, False)
 
     def move(self, vector: Vector):
         self.position += vector

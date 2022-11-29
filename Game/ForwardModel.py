@@ -39,6 +39,9 @@ class ForwardModel:
         for unit in units:
             if unit.dead:
                 continue
+            unit.update_buffed_state()      # Undoes the effect of the buff it had if the time of the buff has expired
+            if unit.can_buff():
+                unit.buff(frame_state)
             if unit.can_move():
                 self.move_unit(unit, frame_state.game_parameters)
             elif unit.can_attack():

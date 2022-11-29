@@ -21,7 +21,8 @@ class GameParameters:
                       Troop(UnitType.SPEAR, 7, 2),
                       Troop(UnitType.HORSE, 8, 2),
                       Troop(UnitType.BOW, 5, 1),
-                      Troop(UnitType.BOW, 6, 1)]
+                      Troop(UnitType.BOW, 6, 1),
+                      Troop(UnitType.GENERAL, 5, 3)]
         self.screen_portions_horizontally = screen_portions_horizontally
         self.screen_portions_vertically = screen_portions_vertically
         self.screen_size = screen_size
