@@ -47,12 +47,13 @@ class ForwardModel:
 
             # Basic actions, move and attack
             if unit.can_move():
-                self.move_unit(unit, frame_state.game_parameters)
+                self.move_unit(unit, frame_state.last_frame)
             elif unit.can_attack():
                 if str(unit.type) == "BOW":
                     self.archer_attack(unit, frame_state)
                 else:
                     self.attack(unit)
+        frame_state.last_frame = time.time()
 
     def check_archer(self, archer, target):
         """
@@ -182,11 +183,10 @@ class ForwardModel:
         :param seconds: int
         :return: None
         """
-        self.process_action(observation, action)
-        iterations = observation.game_parameters.frame_rate * seconds
-        while not observation.is_terminal() and iterations > 0:
+        self.process_action(observation, action, observation.turn)
+        start = time.time()
+        while not observation.is_terminal() and (time.time() - start) < seconds:
             self.step(observation)
-            iterations -= 1
 
     def simulate_frames(self, observation: "TotalBotWar.Game.Observation.Observation",
                         action: "TotalBotWar.Game.Action.Action", frames=1):
@@ -198,25 +198,25 @@ class ForwardModel:
         :param frames: int
         :return: None
         """
-        self.process_action(observation, action)
+        self.process_action(observation, action, observation.turn)
         while not observation.is_terminal and frames > 0:
             self.step(observation)
             frames -= 1
 
-    def process_action(self, frame_state, action):
+    def process_action(self, frame_state, action, turn):
         """
         If new destination and action is valid, set destination of unit as its new destination
         :param frame_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
         :param action: TotalBotWar.Game.Observation.Observation
+        :param turn: int
         :return: None
         """
-        frame_state.turn = (frame_state.turn + 3) % 2
 
         if action is None:
             return
 
         # (game_state.turn + 3) % 2 it's the opposite turn of game_state.turn
-        unit = self.get_unit_by_id_and_turn(frame_state, action.unit.id, (frame_state.turn + 3) % 2)
+        unit = self.get_unit_by_id_and_turn(frame_state, action.unit.id, turn)
 
         # This statement is temporal, cause move unit that is fighting is still allowed
         if unit.target is not None:
@@ -243,22 +243,24 @@ class ForwardModel:
         else:
             return game_state.player_1_units[id]
 
-    def move_unit(self, unit, parameters):
+    def move_unit(self, unit, last_frame):
         """
         Move unit towards its direction
         :param unit: TotalBotWar.Game.Unit.Unit
-        :param parameters: TotalBotWar.Game.GameParameters.GameParameters
+        :param last_frame: time when last frame was
         :return: None
         """
+
+        unit_velocity = unit.velocity * (time.time() - last_frame)     # Make velocity frame-independent
         # If distance is lower than velocity
-        if Vector.distance(unit.position, unit.destination) <= unit.velocity:
+        if Vector.distance(unit.position, unit.destination) <= unit_velocity:
             # Set step as de vector between you and destination
             step = Vector.direction(unit.position, unit.destination)
         else:
             # Normalized direction
             direction = Vector.direction(unit.position, unit.destination)
             direction = direction.normalized()
-            step = direction * unit.velocity
+            step = direction * unit_velocity
 
         # Perform movement
         unit.move(step)

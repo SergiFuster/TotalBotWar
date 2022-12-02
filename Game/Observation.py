@@ -1,10 +1,8 @@
 import random
 from Utilities.Vector import Vector
 from Game.Action import Action
-
-
 class Observation:
-    def __init__(self, game_state):
+    def __init__(self, game_state, team):
         """
         Creates an observation with same data that game_state
         but randomize opponent units destinations cause is a hidden info
@@ -14,12 +12,8 @@ class Observation:
             self.game_parameters = game_state.game_parameters.clone()
             self.player_0_units = self.clone_list_of_units(game_state.player_0_units)
             self.player_1_units = self.clone_list_of_units(game_state.player_1_units)
-            self.turn = game_state.turn
-
-            if self.turn == 0:
-                self.randomize_destinations(self.player_1_units)
-            else:
-                self.randomize_destinations(self.player_0_units)
+            self.turn = team
+            self.last_frame = game_state.last_frame
 
     def clone_list_of_units(self, units):
         new_list = []
@@ -34,8 +28,8 @@ class Observation:
         Construct a new observation with same data but other references and return it
         :return: Observation
         """
-        new_obs = Observation(self)
-        new_obs.copy_random_destinations(self)
+        new_obs = Observation(self, self.turn)
+        # new_obs.copy_random_destinations(self)
         return new_obs
 
     def copy_random_destinations(self, obs):
@@ -81,28 +75,32 @@ class Observation:
         for i in range(len(list_units_1)):
             list_units_1[i].copy_into(list_units_2[i])
 
-    def get_macro_actions(self, h=4, v=4):
+    def get_macro_actions(self, d=20):
         """
         For every unit that can move calculate its possible actions
-        moving it to all portions of map, map is divided horizontally by h
-        and vertically by v to reduce possibilities
-        :param h: int optional
-        :param v: int optional
+        moving it to 8 near portions of the unit at distance d,
+        :param d: float indicating distance of the portions
         :return: List of TotalBotWar.Game.Action.Action
         """
-        positions = self.get_portion_positions(h, v)
+        directions = Vector.get_basic_directions()
         actions = []
         if self.turn == 0:
             for unit in self.player_0_units:
                 if unit.can_move():
-                    for position in positions:
-                        actions.append(Action(unit, position[0], position[1]))      # Available positions to move
+                    for direction in directions:
+                        new_pos = unit.position + (direction * d)
+                        if self.game_parameters.forward_model.valid_destination(self.game_parameters.screen_size,
+                                                                                new_pos):
+                            actions.append(Action(unit, new_pos.x, new_pos.y))
                     actions.append(Action(unit, unit.position.x, unit.position.y))  # Stop the unit
         else:
             for unit in self.player_1_units:
                 if unit.can_move():
-                    for position in positions:
-                        actions.append(Action(unit, position[0], position[1]))      # Available positions to move
+                    for direction in directions:
+                        new_pos = unit.position + (direction * d)
+                        if self.game_parameters.forward_model.valid_destination(self.game_parameters.screen_size,
+                                                                                new_pos):
+                            actions.append(Action(unit, new_pos.x, new_pos.y))
                     actions.append(Action(unit, unit.position.x, unit.position.y))  # Stop the unit
         return actions
 

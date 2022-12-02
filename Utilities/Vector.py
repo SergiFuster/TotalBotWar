@@ -81,6 +81,23 @@ class Vector:
         """Return a Vector with axis (0, 0, 0)"""
         return Vector([0, 0, 0])
 
+    @staticmethod
+    def get_basic_directions():
+        """
+        Return the 8 basic directions in unitary length
+        :return: List of Vectors
+        """
+        directions = []
+        directions.append(Vector([-1, 0]))                      # west
+        directions.append(Vector([1, 0]))                       # east
+        directions.append(Vector([0, 1]))                       # north
+        directions.append(Vector([0, -1]))                      # south
+        directions.append(Vector([1, 1]).normalized())          # northeast
+        directions.append(Vector([-1, 1]).normalized())         # northwest
+        directions.append(Vector([1, -1]).normalized())         # southeast
+        directions.append(Vector([-1, -1]).normalized())        # southwest
+        return directions
+
     # endregion
 
     # region OPERATIONS

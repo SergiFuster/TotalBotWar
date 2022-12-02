@@ -1,4 +1,5 @@
 from Game.Unit import Unit
+import time
 from Game.Observation import Observation
 
 
@@ -12,9 +13,10 @@ class GameState:
         self.player_0_units = []
         self.player_1_units = []
         self.turn = 0
+        self.last_frame = time.time()
 
-    def get_observation(self) -> "TotalBotWar.Game.Observation.Observation":
-        return Observation(self)
+    def get_observation(self, team) -> "TotalBotWar.Game.Observation.Observation":
+        return Observation(self, team)
 
     def reset(self):
         """

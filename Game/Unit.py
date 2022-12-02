@@ -75,7 +75,7 @@ class Unit:
                 self.attack = 20
                 self.chargeForce = 5
                 self.chargeResistance = 25
-                self.velocity = 0.0668
+                self.velocity = 6.68
                 self.size = (24.96, 12.64)
                 self.health = 250
                 self.max_health = self.health
@@ -92,7 +92,7 @@ class Unit:
                 self.attack = 12
                 self.chargeForce = 100
                 self.chargeResistance = 15
-                self.velocity = 0.1636
+                self.velocity = 16.36
                 self.size = (38.4, 38.4)
                 self.health = 200
                 self.max_health = self.health
@@ -109,7 +109,7 @@ class Unit:
                 self.attack = 15
                 self.chargeForce = 10
                 self.chargeResistance = 125
-                self.velocity = 0.056
+                self.velocity = 5.6
                 self.size = (48, 24)
                 self.health = 250
                 self.max_health = self.health
@@ -126,7 +126,7 @@ class Unit:
                 self.attack = 10
                 self.chargeForce = 5
                 self.chargeResistance = 0
-                self.velocity = 0.0668
+                self.velocity = 6.68
                 self.size = (52, 20.8)
                 self.health = 100
                 self.max_health = self.health
@@ -143,7 +143,7 @@ class Unit:
                 self.attack = 20
                 self.chargeForce = 5
                 self.chargeResistance = 100
-                self.velocity = 0.0668
+                self.velocity = 6.68
                 self.size = (20, 20)
                 self.health = 100
                 self.max_health = self.health

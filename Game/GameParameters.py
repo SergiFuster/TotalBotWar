@@ -15,7 +15,6 @@ class GameParameters:
                  screen_size=(1000, 500),
                  screen_portions_horizontally=10,
                  screen_portions_vertically=10,
-                 frame_rate=100,
                  temp=180):
         """
         This is class-keeper to group every game modifiable parameters in one site
@@ -39,7 +38,6 @@ class GameParameters:
         self.screen_portions_vertically = screen_portions_vertically
         self.screen_size = screen_size
         self.troops = troops
-        self.frame_rate = frame_rate
         self.forward_model = ForwardModel()
         self.temp = temp
         self.start = 0
@@ -77,5 +75,9 @@ class GameParameters:
         new_troops = []
         for troop in self.troops:
             new_troops.append(troop.clone())
-        return GameParameters(new_troops, self.screen_size[:], self.screen_portions_horizontally,
-                              self.screen_portions_vertically, self.frame_rate, self.temp)
+        return GameParameters(self.show_death_units, self.show_destinations, self.show_buff_range,
+                              self.show_archer_range, self.show_directions,
+                              self.show_ids, self.show_health, self.show_buffed_indicator,
+                              self.show_remaining_time, self.show_instructions, self.show_fight_indicator,
+                              new_troops, self.screen_size[:], self.screen_portions_horizontally,
+                              self.screen_portions_vertically, self.temp)
