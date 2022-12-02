@@ -58,7 +58,7 @@ print("Action1 == units[0]: ", action1 == units[0])"""
 verbose = True
 budged = 1
 game_parameters = GameParameters(False,
-                                 False,
+                                 True,
                                  False,
                                  True,
                                  True,

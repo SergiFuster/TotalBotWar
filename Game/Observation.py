@@ -84,18 +84,10 @@ class Observation:
         """
         directions = Vector.get_basic_directions()
         actions = []
+        units = self.player_0_units if self.turn == 0 else self.player_1_units
         if self.turn == 0:
-            for unit in self.player_0_units:
-                if unit.can_move():
-                    for direction in directions:
-                        new_pos = unit.position + (direction * d)
-                        if self.game_parameters.forward_model.valid_destination(self.game_parameters.screen_size,
-                                                                                new_pos):
-                            actions.append(Action(unit, new_pos.x, new_pos.y))
-                    actions.append(Action(unit, unit.position.x, unit.position.y))  # Stop the unit
-        else:
-            for unit in self.player_1_units:
-                if unit.can_move():
+            for unit in units:
+                if unit.can_move() and not unit.moving:
                     for direction in directions:
                         new_pos = unit.position + (direction * d)
                         if self.game_parameters.forward_model.valid_destination(self.game_parameters.screen_size,

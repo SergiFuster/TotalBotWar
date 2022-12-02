@@ -21,11 +21,11 @@ class OSLAPlayer(Player):
         best_reward = 0
         current_observation = observation.clone()
         random.shuffle(actions)
+        if len(actions) > 4:
+            actions = actions[:4]
         for action in actions:
-            if action.unit.moving:
-                continue
             observation.copy_into(current_observation)
-            observation.game_parameters.forward_model.simulate_frames(current_observation, action, 100)
+            observation.game_parameters.forward_model.simulate_frames(current_observation, action, 300)
             reward = self.heuristic.get_reward(current_observation)
             if best_action is None or reward > best_reward:
                 best_action = action

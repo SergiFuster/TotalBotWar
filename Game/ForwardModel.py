@@ -199,7 +199,7 @@ class ForwardModel:
         :return: None
         """
         self.process_action(observation, action, observation.turn)
-        while not observation.is_terminal and frames > 0:
+        while not observation.is_terminal() and frames > 0:
             self.step(observation)
             frames -= 1
 
