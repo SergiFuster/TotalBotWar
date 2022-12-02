@@ -38,10 +38,10 @@ class Game:
             print(unit, "\n")
 
         self.game_state.game_parameters.set_start_time(time.time())
-        executor.submit(self.request_actions, l_players[0], budged)
-        executor.submit(self.request_actions, l_players[1], budged)
+        """executor.submit(self.request_actions, l_players[0], budged)
+        executor.submit(self.request_actions, l_players[1], budged)"""
+        last_time = time.time()
         while not self.game_state.is_terminal():
-
             time.sleep(1/self.game_state.game_parameters.frame_rate)
             if verbose:
                 self.pause = self.gui.draw_screen(self.game_state.player_0_units +
@@ -49,5 +49,12 @@ class Game:
                                                   self.game_state.game_parameters.remaining_time)
             if self.pause:
                 continue
+
+            if time.time() - last_time >= 0.1:
+                for player in l_players:
+                    observation = self.game_state.get_observation()
+                    action = player.think(observation, budged)
+                    self.game_state.game_parameters.forward_model.process_action(self.game_state, action)
+                    last_time = time.time()
             self.game_state.game_parameters.update_elapsed_time(time.time())  # Update times
             self.game_state.game_parameters.forward_model.step(self.game_state)
