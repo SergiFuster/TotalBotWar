@@ -41,11 +41,9 @@ class ForwardModel:
             if unit.dead:
                 continue
 
-            unit.update_buffed_state()      # Undoes the effect of the buff it had if the time of the buff has expired
-
-            # General buff nearby allys every time that he can
+            # General is who look for buff or debuff allay units
             if unit.can_buff():
-                unit.buff(frame_state)
+                unit.buff_debuff(frame_state)
 
             # Basic actions, move and attack
             if unit.can_move():

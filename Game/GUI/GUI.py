@@ -97,14 +97,17 @@ class GUI:
             pos_health[0] -= health.get_width() / 2
             pos_health[1] -= unit.size[1] / 2 + health.get_height()
             self.display.blit(health, pos_health)
-            """pos_health[1] -= unit.size[1] / 2 + self.health_bar_height + 5
-            pos_health[0] -= self.health_bar_width / 2
-            green_rect = pygame.Rect(pos_health[0], pos_health[1],
-                                     int(unit.health / unit.max_health * self.health_bar_width), self.health_bar_height)
-            red_rect = pygame.Rect(pos_health[0], pos_health[1],
-                                   self.health_bar_width, self.health_bar_height)
-            pygame.draw.rect(self.display, RED, red_rect)
-            pygame.draw.rect(self.display, GREEN, green_rect)"""
+            # region HEALTHBAR
+            # pos_health[1] -= unit.size[1] / 2 + self.health_bar_height + 5
+            # pos_health[0] -= self.health_bar_width / 2
+            # green_rect = pygame.Rect(pos_health[0], pos_health[1],
+            #                          int(unit.health / unit.max_health * self.health_bar_width),
+            #                          self.health_bar_height)
+            # red_rect = pygame.Rect(pos_health[0], pos_health[1],
+            #                        self.health_bar_width, self.health_bar_height)
+            # pygame.draw.rect(self.display, RED, red_rect)
+            # pygame.draw.rect(self.display, GREEN, green_rect)
+            # endregion
         # endregion
         # region RANGE
         if self.game_parameters.show_archer_range and str(unit.type) == "BOW":
