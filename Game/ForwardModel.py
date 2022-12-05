@@ -1,4 +1,3 @@
-from typing import Union
 from Utilities.Vector import Vector
 import time
 import random
@@ -188,8 +187,7 @@ class ForwardModel:
         while not observation.is_terminal() and (time.time() - start) < seconds:
             self.step(observation)
 
-    def simulate_frames(self, observation: "TotalBotWar.Game.Observation.Observation",
-                        action: "TotalBotWar.Game.Action.Action", frames=1):
+    def simulate_frames(self, observation, action, frames=1):
         """
         Play an action and simulate game for frames as if no one was playing any further action
         Modify the observation passed as an argument
@@ -199,7 +197,13 @@ class ForwardModel:
         :return: None
         """
         self.process_action(observation, action, observation.turn)
-        while not observation.is_terminal and frames > 0:
+        while not observation.is_terminal() and frames > 0:
+            self.step(observation)
+            frames -= 1
+
+    def pseudo_simulate_frames(self, observation, action, frames=1):
+        self.pseudo_process_action(observation, action)
+        while not observation.is_terminal() and frames > 0:
             self.step(observation)
             frames -= 1
 
@@ -225,9 +229,22 @@ class ForwardModel:
         if self.valid_destination(frame_state.game_parameters.screen_size, action.destination):
             unit.set_destination(action.destination)
 
+    def pseudo_process_action(self, frame_state, action):
+        """
+        Moves instantly a unit to its destination
+        :param frame_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
+        :param action: TotalBotWar.Game.Action.Action
+        :return: None
+        """
+        unit = self.get_unit_by_id_and_turn(frame_state, action.unit.id, action.unit.team)
+
+        if self.valid_destination(frame_state.game_parameters.screen_size, action.destination):
+            unit.set_destination(action.destination)
+            unit.position = unit.destination.clone()
+
     def get_unit_by_id_and_turn(self, game_state, id, turn):
         """
-        Return the unit with unit.id == id and unit.team == turn
+        Return the unit with unit-id == id and unit.team == turn
         :param game_state: TotalBotWar.Game.GameState.GameState
         :param id: int
         :param turn: int
@@ -280,33 +297,33 @@ class ForwardModel:
         return self.collide_in_x_axis(unit0, unit1) and self.collide_in_y_axis(unit0, unit1)
 
     def collide_in_x_axis(self, unit0, unit1):
+        """
+        Indicates if unit0 and unit1 intersects in the x-axis
+        :param unit0: TotalBotWar.Game.Unit.Units
+        :param unit1: TotalBotWar.Game.Unit.Units
+        :return: bool
+        """
         return (unit0.position.x + unit0.size[0] / 2) > unit1.position.x - unit1.size[0] / 2 and \
-                unit0.position.x + unit0.size[0] / 2 < unit1.position.x + unit1.size[0] / 2 + unit0.size[0]
+            unit0.position.x + unit0.size[0] / 2 < unit1.position.x + unit1.size[0] / 2 + unit0.size[0]
 
     def collide_in_y_axis(self, unit0, unit1):
+        """
+        Indicates if unit0 and unit1 intersects in the y-axis
+        :param unit0: TotalBotWar.Game.Unit.Units
+        :param unit1: TotalBotWar.Game.Unit.Units
+        :return: bool
+        """
         return (unit0.position.y + unit0.size[1] / 2) > unit1.position.y - unit1.size[1] / 2 and \
-                unit0.position.y + unit0.size[1] / 2 < unit1.position.y + unit1.size[1] / 2 + unit0.size[1]
+            unit0.position.y + unit0.size[1] / 2 < unit1.position.y + unit1.size[1] / 2 + unit0.size[1]
 
-    def valid_destination(self, screen_size, destination: 'Vector') -> bool:
-        """returns boolean indicating if destination is inside the window"""
+    def valid_destination(self, screen_size, destination):
+        """
+        Indicates if destination is inside the window
+        :param screen_size:
+        :param destination:
+        :return: bool
+        """
         if destination.x > screen_size[0] or destination.x < 0 or \
                 destination.y > screen_size[1] or destination.y < 0:
             return False
-        return True
-
-    def is_terminal(self,
-                    game_state: "Union[TotalBotWar.Game.GameState.GameState,"
-                                " TotalBotWar.Game.Observation.Observation]"):
-
-        some_unit_alive = False
-        for unit in game_state.player_0_units:
-            if not unit.dead:
-                some_unit_alive = True
-        if not some_unit_alive:
-            return True
-
-        for unit in game_state.player_1_units:
-            if not unit.dead:
-                return False
-
         return True

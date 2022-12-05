@@ -51,6 +51,13 @@ class Unit:
         self.color = []                                                         # Just for pygame visualization
         self.set_stats()
 
+    def available(self):
+        """
+        Indicates if this unit can receive new destination
+        :return: bool
+        """
+        return self.can_move() and not self.moving
+
     def can_move(self):
         """
         Return bool indicating if this unit is allowed to move
@@ -59,6 +66,10 @@ class Unit:
         return self.target is None and not self.dead
 
     def can_attack(self):
+        """
+        Indicates if self is available to performs an attack
+        :return: bool
+        """
         return self.target is not None and time.time() - self.last_attack >= 1 / self.attack_rate
 
     def can_buff(self):
@@ -186,7 +197,7 @@ class Unit:
         """
         Modify the stats with function passed as argument except the life
         :param function: function
-        :return: return nothing
+        :return: None
         """
         self.defense = function(self.defense)
         self.attack = function(self.attack)
@@ -201,7 +212,7 @@ class Unit:
     def copy_into(self, other_unit, target=False):
         """
         Copy mutable data from self to other_unit
-        this is more optimal than cloning
+        this is optimal than cloning
         :param target: bool
         :param other_unit: TotalBotWar.Game.Unit.Unit
         :return: None
@@ -241,7 +252,7 @@ class Unit:
         self.dead = True
         self.target = None
 
-    def set_destination(self, destination: Vector) -> None:
+    def set_destination(self, destination):
         """
         Set new destination as destination and updates direction if new destination is not the current position
         :param destination: TotalBotWar.Utilities.Vector.Vector
@@ -269,6 +280,11 @@ class Unit:
                 ally.restore_stats()
 
     def move(self, vector: Vector):
+        """
+        Adds vector to self-position and updates self-moving boolean
+        :param vector:
+        :return: None
+        """
         self.position += vector
         self.moving = self.position == self.destination
 

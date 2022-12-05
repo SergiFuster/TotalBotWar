@@ -117,11 +117,7 @@ class GUI:
         # endregion
         # region BUFF
         if self.game_parameters.show_buff_range and str(unit.type) == "GENERAL":
-            if str(unit.type) == "GENERAL":
-                if unit.can_buff():
-                    pygame.draw.circle(self.display, ORANGE, unit.position.values, unit.buff_radius)
-                else:
-                    pygame.draw.circle(self.display, ORANGE, unit.position.values, unit.buff_radius, 1)
+            pygame.draw.circle(self.display, ORANGE, unit.position.values, unit.buff_radius, 1)
         if self.game_parameters.show_buffed_indicator:
             if unit.buffed:
                 points = [(unit.position.x - unit.size[0] / 2, unit.position.y - unit.size[1] / 2 - 2),

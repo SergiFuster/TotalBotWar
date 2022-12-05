@@ -4,6 +4,7 @@ from Game.GUI.GUI import GUI
 from Game.GameState import GameState
 from concurrent.futures import ThreadPoolExecutor
 
+
 class Game:
     def __init__(self, parameters):
         self.game_state = GameState(parameters)

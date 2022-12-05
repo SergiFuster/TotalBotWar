@@ -16,16 +16,18 @@ class OSLAPlayer(Player):
         :param budget: float
         :return: TotalBotWar.Game.Action.Action
         """
-        actions = observation.get_macro_actions(200)
+
+        actions = observation.get_macro_actions_for_unit(observation.get_available_random_unit(), 50)
+        print("Number of actions: ", len(actions))
         best_action = None
         best_reward = 0
         current_observation = observation.clone()
+
         random.shuffle(actions)
+
         for action in actions:
-            if action.unit.moving:
-                continue
             observation.copy_into(current_observation)
-            observation.game_parameters.forward_model.simulate_frames(current_observation, action, 100)
+            observation.game_parameters.forward_model.pseudo_simulate_frames(current_observation, action, 10)
             reward = self.heuristic.get_reward(current_observation)
             if best_action is None or reward > best_reward:
                 best_action = action

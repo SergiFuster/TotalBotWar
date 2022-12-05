@@ -1,6 +1,8 @@
 import random
 from Utilities.Vector import Vector
 from Game.Action import Action
+
+
 class Observation:
     def __init__(self, game_state, team):
         """
@@ -84,25 +86,57 @@ class Observation:
         """
         directions = Vector.get_basic_directions()
         actions = []
+
         if self.turn == 0:
-            for unit in self.player_0_units:
-                if unit.can_move():
-                    for direction in directions:
-                        new_pos = unit.position + (direction * d)
-                        if self.game_parameters.forward_model.valid_destination(self.game_parameters.screen_size,
-                                                                                new_pos):
-                            actions.append(Action(unit, new_pos.x, new_pos.y))
-                    actions.append(Action(unit, unit.position.x, unit.position.y))  # Stop the unit
+            units = self.player_0_units
         else:
-            for unit in self.player_1_units:
-                if unit.can_move():
-                    for direction in directions:
-                        new_pos = unit.position + (direction * d)
-                        if self.game_parameters.forward_model.valid_destination(self.game_parameters.screen_size,
-                                                                                new_pos):
-                            actions.append(Action(unit, new_pos.x, new_pos.y))
-                    actions.append(Action(unit, unit.position.x, unit.position.y))  # Stop the unit
+            units = self.player_1_units
+
+        for unit in units:
+            if unit.available():
+                for direction in directions:
+                    new_pos = unit.position + (direction * d)
+                    if self.game_parameters.forward_model.valid_destination(self.game_parameters.screen_size,
+                                                                            new_pos):
+                        actions.append(Action(unit, new_pos.x, new_pos.y))
+                actions.append(Action(unit, unit.position.x, unit.position.y))  # Stop the unit
         return actions
+
+    def get_macro_actions_for_unit(self, unit, d=20):
+        """
+        Choose a random unit that can move and calculate macro actions for it
+        :return: TotalBotWar.Game.Action.Action
+        """
+
+        if unit is None or not unit.available():
+            return []   # No unit is available
+
+        directions = Vector.get_basic_directions()
+        actions = []
+
+        for direction in directions:
+            new_pos = unit.position + (direction * d)
+            if self.game_parameters.forward_model.valid_destination(self.game_parameters.screen_size,
+                                                                    new_pos):
+                actions.append(Action(unit, new_pos.x, new_pos.y))
+        actions.append(Action(unit, unit.position.x, unit.position.y))  # Stop the unit
+        return actions
+
+    def get_available_random_unit(self):
+
+        if self.turn == 0:
+            units = self.clone_list_of_units(self.player_0_units)
+        else:
+            units = self.clone_list_of_units(self.player_1_units)
+
+        random.shuffle(units)
+        random_unit = None
+        for unit in units:
+            if unit.available():
+                random_unit = unit
+                break
+
+        return random_unit
 
     def get_portion_positions(self, h, v):
         """
