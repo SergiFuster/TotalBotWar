@@ -1,5 +1,5 @@
 import time
-import threading
+import func_timeout
 from Game.GUI.GUI import GUI
 from Game.GameState import GameState
 from concurrent.futures import ThreadPoolExecutor
@@ -25,8 +25,14 @@ class Game:
         self.thread_p0_thinking = True
         print(player, " thinking...")
         t = time.time()
-        self.action_p0 = player.think(observation, budged)
-        t = time.time() - t
+
+        try:
+            self.action_p0 = func_timeout.func_timeout(budged, player.think, args=[observation, budged])
+            t = time.time() - t
+        except func_timeout.FunctionTimedOut:
+            print("{0} exceeded time to think, choosing random action...".format(player))
+            self.action_p0 = observation.get_random_action()
+
         print("{0} time expended: {1}".format(player, t))
         self.thread_p0_thinking = False
 
@@ -35,8 +41,14 @@ class Game:
         self.thread_p1_thinking = True
         print(player, " thinking...")
         t = time.time()
-        self.action_p1 = player.think(observation, budged)
-        t = time.time() - t
+
+        try:
+            self.action_p1 = func_timeout.func_timeout(budged, player.think, args=[observation, budged])
+            t = time.time() - t
+        except func_timeout.FunctionTimedOut:
+            print("{0} exceeded time to think, choosing random action...".format(player))
+            self.action_p1 = observation.get_random_action()
+
         print("{0} time expended: {1}".format(player, t))
         self.thread_p1_thinking = False
 
@@ -78,3 +90,11 @@ class Game:
 
             self.game_state.game_parameters.update_elapsed_time(time.time())  # Update times
             self.game_state.game_parameters.forward_model.step(self.game_state)
+
+        winner = self.game_state.get_winner()
+        if winner != -1:
+            finish_message = "{0} wins the game!".format(l_players[winner])
+        else:
+            finish_message = "It's a draw NO ONE WINS"
+        while True:
+            self.gui.draw_final_screen(finish_message)

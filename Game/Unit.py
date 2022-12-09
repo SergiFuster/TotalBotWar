@@ -273,7 +273,7 @@ class Unit:
 
         ally_units = frame_state.player_0_units if self.team == 0 else frame_state.player_1_units
         for ally in ally_units:
-            if Vector.distance(self.position, ally.position) <= self.buff_radius:
+            if not self.dead and Vector.distance(self.position, ally.position) <= self.buff_radius:
                 if not ally.buffed:
                     ally.modify_stats(lambda x: x * self.buff_ratio)
             elif ally.buffed:

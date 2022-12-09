@@ -16,6 +16,7 @@ class Observation:
             self.player_1_units = self.clone_list_of_units(game_state.player_1_units)
             self.turn = team
             self.last_frame = game_state.last_frame
+            self.randomize_destinations(self.player_1_units if team == 0 else self.player_0_units)
 
     def clone_list_of_units(self, units):
         new_list = []
@@ -31,7 +32,7 @@ class Observation:
         :return: Observation
         """
         new_obs = Observation(self, self.turn)
-        # new_obs.copy_random_destinations(self)
+        new_obs.copy_random_destinations(self)
         return new_obs
 
     def copy_random_destinations(self, obs):
@@ -49,8 +50,41 @@ class Observation:
         :return: None
         """
         for unit in units:
-            unit.destination = Vector([random.randrange(0, self.game_parameters.screen_size[0]),
-                                      random.randrange(0, self.game_parameters.screen_size[1])])
+            # new_destination = actual_direction * k (scalar), but must drop inside the screen
+            max_k = self.max_k_size(unit)
+            k = random.uniform(1, max_k)
+            unit.set_destination(unit.position + (unit.direction * k))
+
+    def max_k_size(self, unit):
+        """
+        Calculates the maximum length that the unit can move
+        in the current direction without leaving the screen
+        :param unit: TotalBotWar.Game.Unit.Unit
+        :return: float
+        """
+        # Parametric equations of the straight line:
+        # x = x1 + k * vx
+        # y = y1 + k * vy
+        x1 = unit.position.x
+        y1 = unit.position.y
+        vx = unit.direction.x
+        vy = unit.direction.y
+
+        if vx < 0:
+            max_k_x = -(x1/vx)
+        elif vx > 0:
+            max_k_x = self.game_parameters.screen_size[0] / vx
+        else:
+            max_k_x = float("inf")
+
+        if vy < 0:
+            max_k_y = -(y1 / vy)
+        elif vy > 0:
+            max_k_y = self.game_parameters.screen_size[1] / vy
+        else:
+            max_k_y = float("inf")
+
+        return min(max_k_x, max_k_y)
 
     def copy_into(self, other_observation):
         """
@@ -213,3 +247,13 @@ class Observation:
             return True
 
         return self.game_parameters.remaining_time <= 0
+
+    def get_random_action(self):
+        """
+        Choose a random action in available macro_actions
+        :return: TotalBotWar.Game.Action.Action
+        """
+        actions = self.get_macro_actions()
+        if len(actions) == 0:
+            return None
+        return random.choice(actions)

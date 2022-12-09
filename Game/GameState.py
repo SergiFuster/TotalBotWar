@@ -69,3 +69,35 @@ class GameState:
             return True
 
         return self.game_parameters.remaining_time <= 0
+
+    def get_winner(self):
+        """
+        Team with greater team health wins
+        1 = win team 1
+        0 = win team 0
+        -1 = draw
+        :return: int
+        """
+        health_team_0 = self.get_team_health(0)
+        health_team_1 = self.get_team_health(1)
+        if health_team_0 < health_team_1:
+            return 1
+        elif health_team_0 > health_team_1:
+            return 0
+        else:
+            return -1
+
+    def get_team_health(self, team):
+        """
+        Calculates the sum of health of the whole team
+        :param team: int
+        :return: int
+        """
+        health = 0
+        if team == 0:
+            for unit in self.player_0_units:
+                health += unit.health if unit.health > 0 else 0
+        else:
+            for unit in self.player_1_units:
+                health += unit.health if unit.health > 0 else 0
+        return health

@@ -34,6 +34,19 @@ class GUI:
         self.screen_open = True
         self.font = pygame.font.SysFont(pygame.font.get_fonts()[4], self.text_size)
 
+    def draw_final_screen(self, message):
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                self.close_screen()
+            if event.type == pygame.MOUSEBUTTONUP:
+                pass
+        self.display.fill(BACKGROUND_GRAY)
+        final_message = self.font.render(message, True, WHITE)
+        pos_text = (self.game_parameters.screen_size[0]/2-final_message.get_width()/2,
+                    self.game_parameters.screen_size[1]/2-final_message.get_height())
+        self.display.blit(final_message, pos_text)
+        pygame.display.flip()
+
     def draw_screen(self, units, remaining_time):
 
         """
@@ -47,8 +60,7 @@ class GUI:
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                self.close_screen()
             if event.type == pygame.MOUSEBUTTONUP:
                 pass
             if event.type == pygame.KEYDOWN:
@@ -166,5 +178,6 @@ class GUI:
         # endregion
 
     def close_screen(self):
+        self.screen_open = False
         pygame.quit()
         sys.exit()

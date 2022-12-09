@@ -9,7 +9,7 @@ class GameParameters:
                  screen_size=(1000, 500),
                  screen_portions_horizontally=10,
                  screen_portions_vertically=10,
-                 temp=180):
+                 temp=60):
         """
         This is class-keeper to group every game modifiable parameters in one site
         :param troops: array of Troop to know which kind of troop and where position it

@@ -37,12 +37,12 @@ class ForwardModel:
         # Fight or movement execution for every unit
         for unit in units:
 
-            if unit.dead:
-                continue
-
             # General is who look for buff or debuff allay units
             if unit.can_buff():
                 unit.buff_debuff(frame_state)
+
+            if unit.dead:
+                continue
 
             # Basic actions, move and attack
             if unit.can_move():
