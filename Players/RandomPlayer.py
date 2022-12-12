@@ -13,7 +13,11 @@ class RandomPlayer(Player):
         """Returns an `TotalBotWar.Game.Action.Action` to play given an `TotalBotWar.Game.Observation.Observation`.
          It must return an action within the given budget of time (in seconds)."""
         units = observation.get_units()
-        random_unit = observation.get_available_random_unit()
+        random_unit = None
+        for unit in units:
+            if not unit.moving:
+                random_unit = unit
+                break
 
         # Not always choose a new destination
         if random_unit is not None:

@@ -56,7 +56,7 @@ class Unit:
         Indicates if this unit can receive new destination
         :return: bool
         """
-        return self.can_move() and not self.moving
+        return self.can_move()
 
     def can_move(self):
         """
@@ -286,7 +286,10 @@ class Unit:
         :return: None
         """
         self.position += vector
-        self.moving = self.position == self.destination
+        # Update unit movement parameters
+        self.move_x = self.position.x != self.destination.x
+        self.move_y = self.position.y != self.destination.y
+        self.moving = self.move_x or self.move_y
 
     def set_direction(self, position):
         """

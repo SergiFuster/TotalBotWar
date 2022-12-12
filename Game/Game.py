@@ -1,6 +1,7 @@
 import time
 import func_timeout
 from Game.GUI.GUI import GUI
+from Game.ForwardModel import ForwardModel
 from Game.GameState import GameState
 from concurrent.futures import ThreadPoolExecutor
 
@@ -15,6 +16,7 @@ class Game:
         self.action_p1 = None
         self.thread_p0_thinking = False
         self.thread_p1_thinking = False
+        self.forward_model = ForwardModel()
 
     def reset(self):
         """Reset GameState so is ready for a new 'Game'"""
@@ -25,14 +27,16 @@ class Game:
         self.thread_p0_thinking = True
         print(player, " thinking...")
         t = time.time()
-
-        try:
-            self.action_p0 = func_timeout.func_timeout(budged, player.think, args=[observation, budged])
-            t = time.time() - t
-        except func_timeout.FunctionTimedOut:
-            print("{0} exceeded time to think, choosing random action...".format(player))
-            self.action_p0 = observation.get_random_action()
-
+        self.action_p0 = player.think(observation, budged)
+        # try:
+        #     self.action_p0 = func_timeout.func_timeout(budged, player.think, args=[observation, budged])
+        # except func_timeout.FunctionTimedOut:
+        #     print("{0} exceeded time to think, choosing random action...".format(player))
+        #     self.action_p0 = observation.get_random_action()
+        #     t = time.time() - t
+        #     print("{0} time expended: {1}".format(player, t))
+        #     self.thread_p0_thinking = False
+        t = time.time() - t
         print("{0} time expended: {1}".format(player, t))
         self.thread_p0_thinking = False
 
@@ -48,6 +52,9 @@ class Game:
         except func_timeout.FunctionTimedOut:
             print("{0} exceeded time to think, choosing random action...".format(player))
             self.action_p1 = observation.get_random_action()
+            t = time.time() - t
+            print("{0} time expended: {1}".format(player, t))
+            self.thread_p1_thinking = False
 
         print("{0} time expended: {1}".format(player, t))
         self.thread_p1_thinking = False
@@ -81,15 +88,15 @@ class Game:
                 last_time = time.time()
 
             if self.action_p0 is not None:
-                self.game_state.game_parameters.forward_model.process_action(self.game_state, self.action_p0, 0)
+                self.forward_model.process_action(self.game_state, self.action_p0, 0)
                 self.action_p0 = None
 
             if self.action_p1 is not None:
-                self.game_state.game_parameters.forward_model.process_action(self.game_state, self.action_p1, 1)
+                self.forward_model.process_action(self.game_state, self.action_p1, 1)
                 self.action_p1 = None
 
             self.game_state.game_parameters.update_elapsed_time(time.time())  # Update times
-            self.game_state.game_parameters.forward_model.step(self.game_state)
+            self.forward_model.step(self.game_state)
 
         winner = self.game_state.get_winner()
         if winner != -1:

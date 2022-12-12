@@ -54,6 +54,75 @@ class ForwardModel:
                     self.attack(unit)
         frame_state.last_frame = time.time()
 
+    # region PSEUDO SIMULATION
+    def pseudo_step(self, frame_state):
+        """
+        Performs a game step, move or attack with each unit
+        :param frame_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
+        :return: None
+        """
+        units = frame_state.player_0_units + frame_state.player_1_units
+        random.shuffle(units)
+        # Charge execution and fighting state updater for every combination of 2 units between teams
+        for unit_p0 in frame_state.player_0_units:
+            for unit_p1 in frame_state.player_1_units:
+
+                if unit_p0.dead or unit_p1.dead:
+                    continue
+
+                # Check if archer its close enough to set its target
+                if str(unit_p0.type) == "BOW":
+                    self.check_archer(unit_p0, unit_p1)
+
+                if str(unit_p1.type) == "BOW":
+                    self.check_archer(unit_p1, unit_p0)
+
+                # Unit doesn't update target until finishing with actual one
+                if not unit_p0.moving and not unit_p1.moving:
+                    continue
+
+                if self.intersect(unit_p0, unit_p1):
+                    self.manage_intersection(unit_p0, unit_p1)
+
+        # Fight or movement execution for every unit
+        for unit in units:
+
+            # General is who look for buff or debuff allay units
+            if unit.can_buff():
+                unit.buff_debuff(frame_state)
+
+            if unit.dead:
+                continue
+
+            # Basic actions, move and attack
+            if unit.can_move():
+                self.pseudo_move_unit(unit)
+            else:
+                if str(unit.type) == "BOW":
+                    self.archer_attack(unit, frame_state)
+                else:
+                    self.attack(unit)
+
+    def pseudo_move_unit(self, unit):
+        """
+        Move unit towards its direction
+        :param unit: TotalBotWar.Game.Unit.Unit
+        :return: None
+        """
+        # If distance is lower than velocity
+        if Vector.distance(unit.position, unit.destination) <= unit.velocity:
+            # Set step as de vector between you and destination
+            step = Vector.direction(unit.position, unit.destination)
+        else:
+            # Normalized direction
+            direction = Vector.direction(unit.position, unit.destination)
+            direction = direction.normalized()
+            step = direction * unit.velocity
+
+        # Perform movement
+        unit.move(step)
+
+    # endregion
     def check_archer(self, archer, target):
         """
         Checks if target is on range and updates it if so
@@ -172,21 +241,6 @@ class ForwardModel:
         else:
             return False
 
-    def simulate_seconds(self, observation: "TotalBotWar.Game.Observation.Observation",
-                         action: "TotalBotWar.Game.Action.Action", seconds=1):
-        """
-        Play an action and simulate game for seconds as if no one was playing any further action
-        Modify the observation passed as an argument
-        :param observation: TotalBotWar.Game.Observation.Observation
-        :param action: TotalBotWar.Game.Action.Action
-        :param seconds: int
-        :return: None
-        """
-        self.process_action(observation, action, observation.turn)
-        start = time.time()
-        while not observation.is_terminal() and (time.time() - start) < seconds:
-            self.step(observation)
-
     def simulate_frames(self, observation, action, frames=1):
         """
         Play an action and simulate game for frames as if no one was playing any further action
@@ -196,9 +250,12 @@ class ForwardModel:
         :param frames: int
         :return: None
         """
+        print("Processing action {0} for simulation...".format(action))
         self.process_action(observation, action, observation.turn)
+        print("Action processed, starting with steps...")
         while not observation.is_terminal() and frames > 0:
-            self.step(observation)
+            print("Frames remaining {0}".format(frames))
+            self.pseudo_step(observation)
             frames -= 1
 
     def pseudo_simulate_frames(self, observation, action, frames=1):
@@ -211,7 +268,7 @@ class ForwardModel:
         """
         If new destination and action is valid, set destination of unit as its new destination
         :param frame_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
-        :param action: TotalBotWar.Game.Observation.Observation
+        :param action: TotalBotWar.Game.Action.Action
         :param turn: int
         :return: None
         """
@@ -236,29 +293,33 @@ class ForwardModel:
         :param action: TotalBotWar.Game.Action.Action
         :return: None
         """
-        unit = self.get_unit_by_id_and_turn(frame_state, action.unit.id, action.unit.team)
+
+        if action is None:
+            return
+
+        unit = self.get_unit_by_id_and_turn(frame_state, action.unit.id, frame_state.turn)
 
         if self.valid_destination(frame_state.game_parameters.screen_size, action.destination):
             unit.set_destination(action.destination)
-            unit.position = unit.destination.clone()
+            unit.move(Vector.direction(unit.position, unit.destination))
 
-    def get_unit_by_id_and_turn(self, game_state, id, turn):
+    def get_unit_by_id_and_turn(self, frame_state, id, turn):
         """
         Return the unit with unit-id == id and unit.team == turn
-        :param game_state: TotalBotWar.Game.GameState.GameState
+        :param frame_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
         :param id: int
         :param turn: int
         :return: TotalBotWar.Game.Unit.Unit
         """
         if id < 0 or \
-                id >= len(game_state.player_0_units) and turn == 0 or \
-                id >= len(game_state.player_1_units) and turn == 1:
+                id >= len(frame_state.player_0_units) and turn == 0 or \
+                id >= len(frame_state.player_1_units) and turn == 1:
             Exception("Unit with id {0} doesn't exist".format(id))
 
         if turn == 0:
-            return game_state.player_0_units[id]
+            return frame_state.player_0_units[id]
         else:
-            return game_state.player_1_units[id]
+            return frame_state.player_1_units[id]
 
     def move_unit(self, unit, last_frame):
         """

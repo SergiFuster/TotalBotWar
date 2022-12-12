@@ -4,18 +4,17 @@ from Game.Action import Action
 
 
 class Observation:
-    def __init__(self, game_state, team):
+    def __init__(self, frame_state, team):
         """
         Creates an observation with same data that game_state
         but randomize opponent units destinations cause is a hidden info
         :param game_state: Union[TotalBotWar.Game.GameState.GameState, TotalBotWar.Game.Observation.Observation]
         """
-        if game_state is not None:
-            self.game_parameters = game_state.game_parameters.clone()
-            self.player_0_units = self.clone_list_of_units(game_state.player_0_units)
-            self.player_1_units = self.clone_list_of_units(game_state.player_1_units)
+        if frame_state is not None:
+            self.game_parameters = frame_state.game_parameters
+            self.player_0_units = self.clone_list_of_units(frame_state.player_0_units)
+            self.player_1_units = self.clone_list_of_units(frame_state.player_1_units)
             self.turn = team
-            self.last_frame = game_state.last_frame
             self.randomize_destinations(self.player_1_units if team == 0 else self.player_0_units)
 
     def clone_list_of_units(self, units):
@@ -95,7 +94,6 @@ class Observation:
         """
         self.copy_list_of_players(self.player_0_units, other_observation.player_0_units)
         self.copy_list_of_players(self.player_1_units, other_observation.player_1_units)
-        other_observation.is_terminal = self.is_terminal
         other_observation.turn = self.turn
         self.copy_random_destinations(other_observation)
 
@@ -118,22 +116,17 @@ class Observation:
         :param d: float indicating distance of the portions
         :return: List of TotalBotWar.Game.Action.Action
         """
-        directions = Vector.get_basic_directions()
-        actions = []
 
-        if self.turn == 0:
-            units = self.player_0_units
-        else:
-            units = self.player_1_units
+        actions = [None]
+        directions = Vector.get_basic_directions(self.turn)
+        units = self.get_units(True)
 
         for unit in units:
-            if unit.available():
-                for direction in directions:
-                    new_pos = unit.position + (direction * d)
-                    if self.game_parameters.forward_model.valid_destination(self.game_parameters.screen_size,
-                                                                            new_pos):
-                        actions.append(Action(unit, new_pos.x, new_pos.y))
-                actions.append(Action(unit, unit.position.x, unit.position.y))  # Stop the unit
+            for direction in directions:
+                new_pos = unit.position + (direction * d)
+                if self.valid_destination(new_pos):
+                    actions.append(Action(unit, new_pos.x, new_pos.y))
+            actions.append(Action(unit, unit.position.x, unit.position.y))  # Stop the unit
         return actions
 
     def get_macro_actions_for_unit(self, unit, d=20):
@@ -143,18 +136,28 @@ class Observation:
         """
 
         if unit is None or not unit.available():
-            return []   # No unit is available
+            return [None]   # Unit is not available
 
-        directions = Vector.get_basic_directions()
-        actions = []
+        directions = Vector.get_basic_directions(self.turn)
+        actions = [None]
 
         for direction in directions:
             new_pos = unit.position + (direction * d)
-            if self.game_parameters.forward_model.valid_destination(self.game_parameters.screen_size,
-                                                                    new_pos):
+            if self.valid_destination(new_pos):
                 actions.append(Action(unit, new_pos.x, new_pos.y))
         actions.append(Action(unit, unit.position.x, unit.position.y))  # Stop the unit
         return actions
+
+    def valid_destination(self, destination):
+        """
+        Indicates if destination is inside the window
+        :param destination:
+        :return: bool
+        """
+        if destination.x > self.game_parameters.screen_size[0] or destination.x < 0 or \
+                destination.y > self.game_parameters.screen_size[1] or destination.y < 0:
+            return False
+        return True
 
     def get_available_random_unit(self):
 
@@ -236,6 +239,7 @@ class Observation:
         for unit in self.player_0_units:
             if not unit.dead:
                 some_unit_alive = True
+                break
         if not some_unit_alive:
             return True
 
@@ -243,6 +247,7 @@ class Observation:
         for unit in self.player_1_units:
             if not unit.dead:
                 some_unit_alive = True
+                break
         if not some_unit_alive:
             return True
 

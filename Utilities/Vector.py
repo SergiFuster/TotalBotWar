@@ -82,21 +82,33 @@ class Vector:
         return Vector([0, 0, 0])
 
     @staticmethod
-    def get_basic_directions():
+    def get_basic_directions(turn):
         """
-        Return the 8 basic directions in unitary length
+        Return the 6 basic directions in unitary length
+        :param: turn: int
         :return: List of Vectors
         """
-        directions = []
-        directions.append(Vector([-1, 0]))                      # west
-        directions.append(Vector([1, 0]))                       # east
-        directions.append(Vector([0, 1]))                       # north
-        directions.append(Vector([0, -1]))                      # south
-        directions.append(Vector([1, 1]).normalized())          # northeast
-        directions.append(Vector([-1, 1]).normalized())         # northwest
-        directions.append(Vector([1, -1]).normalized())         # southeast
-        directions.append(Vector([-1, -1]).normalized())        # southwest
+        directions = list()
+        directions.append(Vector([-1, 0]))  # west
+        directions.append(Vector([1, 0]))  # east
+        directions.append(Vector([0, -1]))  # north
+        directions.append(Vector([0, 1]))  # south
+        if turn == 1:
+            directions.append(Vector([1, -1]).normalized())  # northeast
+            directions.append(Vector([-1, -1]).normalized())  # northwest
+        else:
+            directions.append(Vector([1, 1]).normalized())  # southeast
+            directions.append(Vector([-1, 1]).normalized())  # southwest
+
         return directions
+
+    @staticmethod
+    def south():
+        return Vector([0, 1])
+
+    @staticmethod
+    def north():
+        return Vector([0, -1])
 
     # endregion
 
