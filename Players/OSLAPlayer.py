@@ -22,23 +22,14 @@ class OSLAPlayer(Player):
         distance = 50
         actions = observation.get_macro_actions(distance)
 
-        print("Len of actions: ", len(actions))
-
         current_observation = observation.clone()
         best_action = self.default_action(current_observation, distance)
-        print("Start simulate frames for default action with action {0}...".format(best_action))
         self.forward_model.simulate_frames(current_observation, best_action, 5)
-        print("Stop simulate frames...")
-        print("Getting reward for default action...")
         best_reward = self.heuristic.get_reward(current_observation)
-        print("reward for default action get")
 
         for action in actions:
-            print("Copying observation to current observation...")
             current_observation = observation.clone()
-            print("Start simulate frames for random action {0}...".format(action))
             self.forward_model.simulate_frames(current_observation, action, 5)
-            print("Stop simulate frames...")
             reward = self.heuristic.get_reward(current_observation)
             if reward > best_reward:
                 best_action = action
@@ -79,7 +70,6 @@ class OSLAPlayer(Player):
             return Vector.south()
         else:
             return Vector.north()
-
 
     def __str__(self):
         return "OSLAPlayer"

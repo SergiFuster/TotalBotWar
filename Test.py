@@ -56,7 +56,7 @@ print("Action1 == Action3: ", action1 == action3)
 print("Action1 == units[0]: ", action1 == units[0])"""
 
 verbose = True
-budged = 1
+budged = 3
 game_parameters = GameParameters()
 game = Game(game_parameters)
 players = [OSLAPlayer(SimpleHeuristic()), RandomPlayer()]

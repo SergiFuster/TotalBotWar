@@ -72,9 +72,11 @@ class Vector:
     def angle(v1: 'Vector', v2: 'Vector') -> float:
         """Return the angle between 2 vectors"""
         dot = Vector.dot_product(v1.normalized(), v2.normalized())
-        if abs(dot) > 1:
-            Exception("Arccos of x being abs(x) > 1 is invalid")
-        return math.degrees(math.acos(Vector.dot_product(v1.normalized(), v2.normalized())))
+        dot = max(min(1.0, dot), -1.0)      # Clamping dot product [-1, 1]
+
+        acos = math.acos(dot)
+        return math.degrees(acos)
+
 
     @staticmethod
     def zero():

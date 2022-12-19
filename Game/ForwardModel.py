@@ -250,11 +250,8 @@ class ForwardModel:
         :param frames: int
         :return: None
         """
-        print("Processing action {0} for simulation...".format(action))
         self.process_action(observation, action, observation.turn)
-        print("Action processed, starting with steps...")
         while not observation.is_terminal() and frames > 0:
-            print("Frames remaining {0}".format(frames))
             self.pseudo_step(observation)
             frames -= 1
 

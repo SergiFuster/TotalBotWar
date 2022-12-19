@@ -27,36 +27,33 @@ class Game:
         self.thread_p0_thinking = True
         print(player, " thinking...")
         t = time.time()
-        self.action_p0 = player.think(observation, budged)
-        # try:
-        #     self.action_p0 = func_timeout.func_timeout(budged, player.think, args=[observation, budged])
-        # except func_timeout.FunctionTimedOut:
-        #     print("{0} exceeded time to think, choosing random action...".format(player))
-        #     self.action_p0 = observation.get_random_action()
-        #     t = time.time() - t
-        #     print("{0} time expended: {1}".format(player, t))
-        #     self.thread_p0_thinking = False
-        t = time.time() - t
+        try:
+            self.action_p0 = func_timeout.func_timeout(budged, player.think, args=[observation, budged])
+            t = time.time() - t
+        except func_timeout.FunctionTimedOut:
+            print("{0} exceeded time to think, choosing random action...".format(player))
+            self.action_p0 = observation.get_random_action()
+            t = time.time() - t
+            print("{0} time expended: {1}".format(player, t))
+            self.thread_p0_thinking = False
         print("{0} time expended: {1}".format(player, t))
         self.thread_p0_thinking = False
 
     def player_1_thinking(self, observation, player, budged):
 
         self.thread_p1_thinking = True
-        print(player, " thinking...")
+        # print(player, " thinking...")
         t = time.time()
-
         try:
             self.action_p1 = func_timeout.func_timeout(budged, player.think, args=[observation, budged])
             t = time.time() - t
         except func_timeout.FunctionTimedOut:
-            print("{0} exceeded time to think, choosing random action...".format(player))
+            # print("{0} exceeded time to think, choosing random action...".format(player))
             self.action_p1 = observation.get_random_action()
             t = time.time() - t
-            print("{0} time expended: {1}".format(player, t))
+            # print("{0} time expended: {1}".format(player, t))
             self.thread_p1_thinking = False
-
-        print("{0} time expended: {1}".format(player, t))
+        # print("{0} time expended: {1}".format(player, t))
         self.thread_p1_thinking = False
 
     def run(self, l_players,
@@ -81,10 +78,28 @@ class Game:
                 continue
 
             if time.time() - last_time >= 0.1:
+
+                # region THREADS
                 if not self.thread_p0_thinking:
                     executor.submit(self.player_0_thinking, self.game_state.get_observation(0), l_players[0], budged)
                 if not self.thread_p1_thinking:
                     executor.submit(self.player_1_thinking, self.game_state.get_observation(1), l_players[1], budged)
+                # endregion
+
+                # region NO THREADS
+                # try:
+                #     self.action_p0 = func_timeout.func_timeout(budged, l_players[0].think,
+                #                                                args=[self.game_state.get_observation(0), budged])
+                # except func_timeout.FunctionTimedOut:
+                #     self.action_p0 = self.game_state.get_observation(0).get_random_action()
+                #
+                # try:
+                #     self.action_p1 = func_timeout.func_timeout(budged, l_players[1].think,
+                #                                                args=[self.game_state.get_observation(1), budged])
+                # except func_timeout.FunctionTimedOut:
+                #     self.action_p1 = self.game_state.get_observation(1).get_random_action()
+                # endregion
+
                 last_time = time.time()
 
             if self.action_p0 is not None:
