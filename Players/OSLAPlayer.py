@@ -10,6 +10,19 @@ class OSLAPlayer(Player):
     def __init__(self, heuristic):
         self.heuristic = heuristic
         self.forward_model = ForwardModel()
+        self.positions = \
+            [
+                [100, 100],
+                [200, 100],
+                [300, 100],
+                [400, 100],
+                [500, 100],
+                [100, 200],
+                [200, 200],
+                [300, 200],
+                [400, 200],
+                [500, 200],
+            ]
 
     def think(self, observation, budget):
         """
@@ -19,7 +32,7 @@ class OSLAPlayer(Player):
         :param budget: float
         :return: TotalBotWar.Game.Action.Action
         """
-        distance = 50
+        distance = 100
         actions = observation.get_macro_actions(distance)
 
         current_observation = observation.clone()
@@ -59,6 +72,10 @@ class OSLAPlayer(Player):
         target_position = selected_unit.position + (self.default_direction(selected_unit) * d)
 
         return Action(selected_unit, target_position.x, target_position.y)
+
+    def position_unit(self, type, up_left_corner_limit, bot_right_corner_limit):
+        return super().position_unit(type, up_left_corner_limit, bot_right_corner_limit)
+        return self.positions.pop()
 
     def default_direction(self, unit):
         """

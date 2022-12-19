@@ -1,14 +1,13 @@
 from Game.UnitType import UnitType
-from Game.Troop import Troop
 from Game.ForwardModel import ForwardModel
+from Game.Unit import Unit
 
 
 class GameParameters:
     def __init__(self,
-                 troops=None,
+                 l_players,
+                 central_zone_size=100,
                  screen_size=(1000, 500),
-                 screen_portions_horizontally=10,
-                 screen_portions_vertically=10,
                  temp=180):
         """
         This is class-keeper to group every game modifiable parameters in one site
@@ -17,21 +16,11 @@ class GameParameters:
         :param screen_portions_horizontally: we use portions instead of pixels to adapt the position to every screen size
         :param screen_portions_vertically: we use portions instead of pixels to adapt the position to every screen size
         """
-        if troops is None:
-            troops = [Troop(UnitType.HORSE, 3, 2),
-                      Troop(UnitType.SPEAR, 4, 2),
-                      Troop(UnitType.SWORD, 5, 2),
-                      Troop(UnitType.SWORD, 6, 2),
-                      Troop(UnitType.SPEAR, 7, 2),
-                      Troop(UnitType.HORSE, 8, 2),
-                      Troop(UnitType.BOW, 5, 1),
-                      Troop(UnitType.BOW, 6, 1),
-                      Troop(UnitType.GENERAL, 5, 3)]
-
-        self.screen_portions_horizontally = screen_portions_horizontally
-        self.screen_portions_vertically = screen_portions_vertically
+        self.central_zone_size = central_zone_size
         self.screen_size = screen_size
-        self.troops = troops
+        self.player_0_units = []
+        self.player_1_units = []
+        self.setup_units(l_players)
         self.temp = temp
         self.start = 0
         self.time_elapsed = 0
@@ -48,6 +37,56 @@ class GameParameters:
         self.show_remaining_time = True
         self.show_instructions = False
         self.show_fight_indicator = False
+
+    def setup_units(self, players):
+
+        # Troops that can place the player
+        types = [UnitType.HORSE,
+                 UnitType.HORSE,
+                 UnitType.SWORD,
+                 UnitType.SWORD,
+                 UnitType.BOW,
+                 UnitType.BOW,
+                 UnitType.SPEAR,
+                 UnitType.SPEAR,
+                 UnitType.GENERAL]
+
+        p0_up_left_corner = [0, 0]
+        p0_bot_right_corner = [self.screen_size[0], self.screen_size[1]/2-self.central_zone_size/2]
+
+        p1_up_left_corner = [0, self.screen_size[1]/2+self.central_zone_size/2]
+        p1_bot_right_corner = [self.screen_size[0], self.screen_size[1]]
+
+        print("p0 limits: [{0}, {1}] \t p1 limits: [{2}, {3}]".format(p0_up_left_corner, p0_bot_right_corner,
+                                                                      p1_up_left_corner, p1_bot_right_corner))
+        for type in types:
+            team = 0
+            for player in players:
+
+                limits = (p0_up_left_corner, p0_bot_right_corner) if team == 0 else \
+                    (p1_up_left_corner, p1_bot_right_corner)
+
+                position = player.position_unit(type, limits[0], limits[1])
+                self.fix_initial_position(position, team, limits)
+
+                if team == 0:
+                    self.player_0_units.append(Unit(type, -1, position[0], position[1], team))
+                else:
+                    self.player_1_units.append(Unit(type, -1, position[1], position[1], team))
+
+                team += 1
+
+    def fix_initial_position(self, pos, team, limits):
+        """
+        Looks for collisions with self positioned units or
+        out of limits and moves actual if is mandatory
+        :param pos: list of int
+        :param team: int
+        :param limits: tuple of list of float
+        :return: None
+        """
+        troops = self.player_0_units if team == 0 else self.player_1_units
+        # not implemented yet
 
     def set_start_time(self, start):
         """

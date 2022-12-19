@@ -1,3 +1,5 @@
+import random
+import time
 from abc import ABC, abstractmethod
 
 
@@ -7,8 +9,15 @@ class Player(ABC):
         self.heuristic = heuristic
 
     @abstractmethod
-    def think(self, observation: "TotalBotWar.Game.Observation.Observation", budget: float) \
-            -> "TotalBotWar.Game.Action.Action":
+    def think(self, observation, budget):
         """Returns an `TotalBotWar.Game.Action.Action` to play given an `TotalBotWar.Game.Observation.Observation`. It must
         return an action within the given budget of time (in seconds)."""
 
+    @abstractmethod
+    def position_unit(self, type, up_left_corner_limit, bot_right_corner_limit):
+        return [random.randrange(up_left_corner_limit[0], bot_right_corner_limit[0]),
+                random.randrange(up_left_corner_limit[1], bot_right_corner_limit[1])]
+
+    @abstractmethod
+    def __str__(self):
+        return "Player"

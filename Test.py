@@ -57,9 +57,9 @@ print("Action1 == units[0]: ", action1 == units[0])"""
 
 verbose = True
 budged = 3
-game_parameters = GameParameters()
+players = [OSLAPlayer(SimpleHeuristic()), RandomPlayer()]
+game_parameters = GameParameters(players)
 game = Game(game_parameters)
-players = [OSLAPlayer(SimpleHeuristic()), AlwaysStraightPlayer()]
 game.run(players, verbose, budged)
 
 

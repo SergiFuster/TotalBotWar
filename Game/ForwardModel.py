@@ -207,14 +207,14 @@ class ForwardModel:
 
         impact_bonus = 10 if self.bonus_by_type(unit0.type, unit1.type) else 1
 
-        print("Charger type: {0} \nReceiver type: {1} \nAngle of impact: {2}".format(unit0.type, unit1.type,
-                                                                                     angle_of_impact))
-        print("Charger force: {0} \nReceiver resistance: {1} \nImpact bonus: {2} \n"
-              "Resistance reduction: {3} \nEquation: {0} * {2} - {1} / {3}".format(unit0.chargeForce,
-                                                                                   unit1.chargeResistance,
-                                                                                   impact_bonus,
-                                                                                   resistance_reduction))
-        print()
+        # print("Charger type: {0} \nReceiver type: {1} \nAngle of impact: {2}".format(unit0.type, unit1.type,
+        #                                                                              angle_of_impact))
+        # print("Charger force: {0} \nReceiver resistance: {1} \nImpact bonus: {2} \n"
+        #       "Resistance reduction: {3} \nEquation: {0} * {2} - {1} / {3}".format(unit0.chargeForce,
+        #                                                                            unit1.chargeResistance,
+        #                                                                            impact_bonus,
+        #                                                                            resistance_reduction))
+        # print()
 
         damage = (unit0.chargeForce * impact_bonus) - (unit1.chargeResistance / resistance_reduction)
 

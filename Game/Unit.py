@@ -5,7 +5,7 @@ import time
 
 
 class Unit:
-    def __init__(self, type: UnitType, id: int, x: int, y: int, team):
+    def __init__(self, type, id, x, y, team):
         """
         Construct a new Unit object
         :param type: String that determines the type of unit
