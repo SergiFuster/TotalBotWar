@@ -59,7 +59,7 @@ verbose = True
 budged = 3
 game_parameters = GameParameters()
 game = Game(game_parameters)
-players = [OSLAPlayer(SimpleHeuristic()), RandomPlayer()]
+players = [OSLAPlayer(SimpleHeuristic()), AlwaysStraightPlayer()]
 game.run(players, verbose, budged)
 
 
