@@ -279,10 +279,18 @@ class Unit:
             elif ally.buffed:
                 ally.restore_stats()
 
+    def set_position(self, pos):
+        """
+        This is exclusive to reposition unit initially positioned out of bounds
+        :param pos: list of float
+        :return: None
+        """
+        self.position = Vector(pos)
+
     def move(self, vector: Vector):
         """
         Adds vector to self-position and updates self-moving boolean
-        :param vector:
+        :param vector: TotalBotWar.Utilities.Vector.Vector
         :return: None
         """
         self.position += vector
@@ -290,6 +298,15 @@ class Unit:
         self.move_x = self.position.x != self.destination.x
         self.move_y = self.position.y != self.destination.y
         self.moving = self.move_x or self.move_y
+
+    def reposition(self, vector):
+        """
+        This is similar to method move, but is just for initial repositioning,
+        don't update move bool variables.
+        :param vector: TotalBotWar.Utilities.Vector.Vector
+        :return: None
+        """
+        self.position += vector
 
     def set_direction(self, position):
         """

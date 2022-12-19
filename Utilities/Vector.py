@@ -1,4 +1,5 @@
 import math
+import random
 
 
 class Vector:
@@ -58,6 +59,16 @@ class Vector:
         """Return the distance between v1 and v2"""
         return Vector.direction(v1, v2).magnitude()
 
+    @staticmethod
+    def random():
+        """
+        Return a random vector
+        NOT normalized
+        :return: TotalBotWar.Utilities.Vector.Vector
+        """
+        x = random.choice([random.uniform(-1, 0), random.uniform(0.1, 1)])
+        y = random.choice([random.uniform(-1, 0), random.uniform(0.1, 1)])
+        return Vector([x, y])
     @staticmethod
     def dot_product(v1: 'Vector', v2: 'Vector') -> float:
         """Calculate de scalar product of 2 vectors"""

@@ -8,7 +8,7 @@ from Game.ForwardModel import ForwardModel
 class OSLAPlayer(Player):
 
     def __init__(self, heuristic):
-        self.heuristic = heuristic
+        super().__init__(heuristic)
         self.forward_model = ForwardModel()
         self.positions = \
             [
@@ -75,8 +75,7 @@ class OSLAPlayer(Player):
 
     def position_unit(self, type, up_left_corner_limit, bot_right_corner_limit):
         return super().position_unit(type, up_left_corner_limit, bot_right_corner_limit)
-        return self.positions.pop()
-
+    
     def default_direction(self, unit):
         """
         The default direction when no direction is better than other

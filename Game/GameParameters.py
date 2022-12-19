@@ -1,6 +1,8 @@
 from Game.UnitType import UnitType
 from Game.ForwardModel import ForwardModel
 from Game.Unit import Unit
+from Utilities.Vector import Vector
+import random
 
 
 class GameParameters:
@@ -20,6 +22,7 @@ class GameParameters:
         self.screen_size = screen_size
         self.player_0_units = []
         self.player_1_units = []
+        self.forward_model = ForwardModel()
         self.setup_units(l_players)
         self.temp = temp
         self.start = 0
@@ -59,15 +62,16 @@ class GameParameters:
 
         print("p0 limits: [{0}, {1}] \t p1 limits: [{2}, {3}]".format(p0_up_left_corner, p0_bot_right_corner,
                                                                       p1_up_left_corner, p1_bot_right_corner))
+
+        limits = ((p0_up_left_corner, p0_bot_right_corner), (p1_up_left_corner, p1_bot_right_corner))
+
         for type in types:
             team = 0
             for player in players:
 
-                limits = (p0_up_left_corner, p0_bot_right_corner) if team == 0 else \
-                    (p1_up_left_corner, p1_bot_right_corner)
+                limit = limits[team]
 
-                position = player.position_unit(type, limits[0], limits[1])
-                self.fix_initial_position(position, team, limits)
+                position = player.position_unit(type, limit[0], limit[1])
 
                 if team == 0:
                     self.player_0_units.append(Unit(type, -1, position[0], position[1], team))
@@ -76,17 +80,48 @@ class GameParameters:
 
                 team += 1
 
-    def fix_initial_position(self, pos, team, limits):
+        self.fix_initial_positions(limits)
+
+    def fix_initial_positions(self, limits):
         """
         Looks for collisions with self positioned units or
         out of limits and moves actual if is mandatory
-        :param pos: list of int
-        :param team: int
         :param limits: tuple of list of float
         :return: None
         """
-        troops = self.player_0_units if team == 0 else self.player_1_units
-        # not implemented yet
+        for unit in self.player_0_units:
+            if self.out_of_limits(unit.position, limits[0]):
+                unit.set_position(self.random_position_inside_limits(limits[0]))
+            for other in self.player_0_units:
+                if unit == other:
+                    continue
+                while self.forward_model.intersect(unit, other):
+                    direction = Vector.direction(unit.position, other.position)
+                    print(direction)
+                    if direction == Vector.zero():
+                        direction = Vector.random()
+                    other.reposition(direction.normalized())
+
+        for unit in self.player_1_units:
+            if self.out_of_limits(unit.position, limits[1]):
+                unit.set_position(self.random_position_inside_limits(limits[1]))
+            for other in self.player_1_units:
+                if unit == other:
+                    continue
+                while self.forward_model.intersect(unit, other):
+                    direction = Vector.direction(unit.position, other.position)
+                    print(direction)
+                    if direction == Vector.zero():
+                        direction = Vector.random()
+                    other.reposition(direction.normalized())
+
+    def random_position_inside_limits(self, limit):
+        return [random.randrange(limit[0][0], limit[1][0]),
+                random.randrange(limit[0][1], limit[1][1])]
+
+    def out_of_limits(self, position, limit):
+        return position.x < limit[0][0] or position.x > limit[1][0] or\
+               position.y < limit[0][1] or position.y > limit[1][1]
 
     def set_start_time(self, start):
         """
@@ -112,14 +147,4 @@ class GameParameters:
         """
         self.remaining_time = self.temp - self.time_elapsed
 
-    def clone(self):
-        """
-        Creates a new TotalBotWar.Game.GameParameters.GameParameters
-        with the same self information cloned
-        :return: TotalBotWar.Game.GameParameters.GameParameters
-        """
-        new_troops = []
-        for troop in self.troops:
-            new_troops.append(troop.clone())
-        return GameParameters(new_troops, self.screen_size[:], self.screen_portions_horizontally,
-                              self.screen_portions_vertically, self.temp)
+
