@@ -74,7 +74,7 @@ class OSLAPlayer(Player):
         return Action(selected_unit, target_position.x, target_position.y)
 
     def position_unit(self, type, up_left_corner_limit, bot_right_corner_limit):
-        return super().position_unit(type, up_left_corner_limit, bot_right_corner_limit)
+        return self.positions.pop()
     
     def default_direction(self, unit):
         """
