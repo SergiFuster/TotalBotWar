@@ -122,13 +122,13 @@ class GUI:
             # endregion
         # endregion
         # region RANGE
-        if self.game_parameters.show_archer_range and str(unit.type) == "BOW":
+        if self.game_parameters.show_archer_range and str(unit) == "ARCHER":
             pygame.draw.circle(self.display, RED, unit.position.values, unit.attackDistance, 1)
             if unit.target is not None:
                 pygame.draw.circle(self.display, YELLOW, unit.target.position.values, unit.spread_attack_radius, 1)
         # endregion
         # region BUFF
-        if self.game_parameters.show_buff_range and str(unit.type) == "GENERAL":
+        if self.game_parameters.show_buff_range and str(unit) == "GENERAL":
             pygame.draw.circle(self.display, ORANGE, unit.position.values, unit.buff_radius, 1)
         if self.game_parameters.show_buffed_indicator:
             if unit.buffed:

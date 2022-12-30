@@ -21,10 +21,10 @@ class ForwardModel:
                     continue
 
                 # Check if archer its close enough to set its target
-                if str(unit_p0.type) == "BOW":
+                if str(unit_p0) == "ARCHER":
                     self.check_archer(unit_p0, unit_p1)
 
-                if str(unit_p1.type) == "BOW":
+                if str(unit_p1) == "ARCHER":
                     self.check_archer(unit_p1, unit_p0)
 
                 # Unit doesn't update target until finishing with actual one
@@ -48,7 +48,7 @@ class ForwardModel:
             if unit.can_move():
                 self.move_unit(unit, frame_state.last_frame)
             elif unit.can_attack():
-                if str(unit.type) == "BOW":
+                if str(unit) == "ARCHER":
                     self.archer_attack(unit, frame_state)
                 else:
                     self.attack(unit)
@@ -71,10 +71,10 @@ class ForwardModel:
                     continue
 
                 # Check if archer its close enough to set its target
-                if str(unit_p0.type) == "BOW":
+                if str(unit_p0) == "ARCHER":
                     self.check_archer(unit_p0, unit_p1)
 
-                if str(unit_p1.type) == "BOW":
+                if str(unit_p1) == "ARCHER":
                     self.check_archer(unit_p1, unit_p0)
 
                 # Unit doesn't update target until finishing with actual one
@@ -98,7 +98,7 @@ class ForwardModel:
             if unit.can_move():
                 self.pseudo_move_unit(unit)
             else:
-                if str(unit.type) == "BOW":
+                if str(unit) == "ARCHER":
                     self.archer_attack(unit, frame_state)
                 else:
                     self.attack(unit)
@@ -149,7 +149,7 @@ class ForwardModel:
             for unit in enemy_units:
                 distance = Vector.distance(unit.position, archer.target.position)
                 if distance <= archer.spread_attack_radius:
-                    attack_bonus = 2 if self.bonus_by_type(archer.type, unit.type) else 1
+                    attack_bonus = 2 if self.bonus_by_type(archer, unit) else 1
                     damage = archer.farAttack * attack_bonus - unit.farResistance / 2
                     unit.take_damage(damage)
             archer.last_attack = time.time()
@@ -163,7 +163,7 @@ class ForwardModel:
         if unit.target.dead:
             unit.target = None
         else:
-            attack_bonus = 2 if self.bonus_by_type(unit.type, unit.target.type) else 1
+            attack_bonus = 2 if self.bonus_by_type(unit, unit.target) else 1
             unit.last_attack = time.time()
             damage = unit.attack * attack_bonus - unit.target.defense / 2
             unit.target.take_damage(damage)
@@ -205,7 +205,7 @@ class ForwardModel:
         # If impact is from behind or sides, resistance is reduced
         resistance_reduction = 1 if angle_of_impact < 90 else 3
 
-        impact_bonus = 10 if self.bonus_by_type(unit0.type, unit1.type) else 1
+        impact_bonus = 10 if self.bonus_by_type(unit0, unit1) else 1
 
         # print("Charger type: {0} \nReceiver type: {1} \nAngle of impact: {2}".format(unit0.type, unit1.type,
         #                                                                              angle_of_impact))
@@ -223,18 +223,18 @@ class ForwardModel:
 
         unit1.take_damage(damage)
 
-    def bonus_by_type(self, type_charger, type_receiver):
+    def bonus_by_type(self, charger, receiver):
         """
         Get a number that indicates if charger have type bonus over receiver
-        :param type_charger: TotalBotWar.Game.UnitType.UnitType
-        :param type_receiver: TotalBotWar.Game.UnitType.UnitType
+        :param charger: TotalBotWar.Game.Units.Unit
+        :param receiver: TotalBotWar.Game.Units.Unit
         :return: int
         """
 
-        if str(type_charger) == "SWORD" and str(type_receiver) == "SPEAR" or \
-                str(type_charger) == "SPEAR" and str(type_receiver) == "HORSE" or \
-                str(type_charger) == "HORSE" and str(type_receiver) == "SWORD" or \
-                str(type_receiver) == "BOW":
+        if str(charger) == "SWORD" and str(receiver) == "SPEAR" or \
+                str(charger) == "SPEAR" and str(receiver) == "KNIGHT" or \
+                str(charger) == "KNIGHT" and str(receiver) == "SWORD" or \
+                str(receiver) == "ARCHER":
 
             return True
 

@@ -25,7 +25,7 @@ class Observation:
 
         return new_list
 
-    def clone(self) -> "Observation":
+    def clone(self):
         """
         Construct a new observation with same data but other references and return it
         :return: Observation

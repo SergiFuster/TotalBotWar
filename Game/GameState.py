@@ -1,4 +1,4 @@
-from Game.Unit import Unit
+from Game.Units.Unit import Unit
 import time
 from Game.Observation import Observation
 
@@ -25,22 +25,14 @@ class GameState:
         """
 
         # Troops for player 0
-        id = 0
-        for unit in self.game_parameters.player_0_units:
-            self.player_0_units.append(Unit(unit.type, id,
-                                            unit.position.x,
-                                            unit.position.y,
-                                            0))
-            id += 1
+        for i, unit in enumerate(self.game_parameters.player_0_units):
+            unit.update_id(i)
+            self.player_0_units.append(unit.clone())
 
         # Troops for player 1
-        id = 0
-        for unit in self.game_parameters.player_1_units:
-            self.player_1_units.append(Unit(unit.type, id,
-                                            unit.position.x,
-                                            unit.position.y,
-                                            1))
-            id += 1
+        for i, unit in enumerate(self.game_parameters.player_1_units):
+            unit.update_id(i)
+            self.player_1_units.append(unit.clone())
 
         self.turn = 0
 

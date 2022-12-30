@@ -1,6 +1,6 @@
-from Game.UnitType import UnitType
+from Game.Units import *
 from Game.ForwardModel import ForwardModel
-from Game.Unit import Unit
+from Game.Units.Unit import Unit
 from Utilities.Vector import Vector
 import random
 
@@ -13,10 +13,7 @@ class GameParameters:
                  temp=180):
         """
         This is class-keeper to group every game modifiable parameters in one site
-        :param troops: array of Troop to know which kind of troop and where position it
         :param screen_size: tuple with width and height, we need this information to can position troops accordingly
-        :param screen_portions_horizontally: we use portions instead of pixels to adapt the position to every screen size
-        :param screen_portions_vertically: we use portions instead of pixels to adapt the position to every screen size
         """
         self.central_zone_size = central_zone_size
         self.screen_size = screen_size
@@ -44,16 +41,14 @@ class GameParameters:
     def setup_units(self, players):
 
         # Troops that can place the player
-        types = [UnitType.HORSE,
-                 UnitType.HORSE,
-                 UnitType.SWORD,
-                 UnitType.SWORD,
-                 UnitType.BOW,
-                 UnitType.BOW,
-                 UnitType.SPEAR,
-                 UnitType.SPEAR,
-                 UnitType.GENERAL]
-
+        types ="KKSSPPAAG"
+        # region instructions
+        # K = Knight
+        # S = Sword
+        # P = Spear
+        # A = Archer
+        # G = General
+        # endregion
         p0_up_left_corner = [0, 0]
         p0_bot_right_corner = [self.screen_size[0], self.screen_size[1]/2-self.central_zone_size/2]
 
@@ -65,7 +60,7 @@ class GameParameters:
 
         limits = ((p0_up_left_corner, p0_bot_right_corner), (p1_up_left_corner, p1_bot_right_corner))
 
-        for type in types:
+        for letter in types:
             team = 0
             for player in players:
 
@@ -73,10 +68,21 @@ class GameParameters:
 
                 position = player.position_unit(type, limit[0], limit[1])
 
-                if team == 0:
-                    self.player_0_units.append(Unit(type, -1, position[0], position[1], team))
+                if letter == "K":
+                    unit = Knight.Knight(-1, position[0], position[1], team)
+                elif letter == "S":
+                    unit = Sword.Sword(-1, position[0], position[1], team)
+                elif letter == "P":
+                    unit = Spear.Spear(-1, position[0], position[1], team)
+                elif letter == "G":
+                    unit = General.General(-1, position[0], position[1], team)
                 else:
-                    self.player_1_units.append(Unit(type, -1, position[1], position[1], team))
+                    unit = Archer.Archer(-1, position[0], position[1], team)
+
+                if team == 0:
+                    self.player_0_units.append(unit)
+                else:
+                    self.player_1_units.append(unit)
 
                 team += 1
 
