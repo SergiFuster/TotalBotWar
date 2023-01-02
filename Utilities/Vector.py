@@ -148,6 +148,11 @@ class Vector:
             Exception("Cannot add Vector by something that's not a Vector")
         return Vector([other.values[i] + self.values[i] for i in range(len(self))])
 
+    def __sub__(self, other):
+        if not isinstance(other, Vector):
+            Exception("Cannot subtract Vector by something that's not a Vector")
+        return Vector([self.values[i] - other.values[i] for i in range(len(other.values))])
+
     def __str__(self):
         return str(self.values) + "- Vector: {0} - List of Values: {1}".format(hex(id(self)), hex((id(self.value))))
 

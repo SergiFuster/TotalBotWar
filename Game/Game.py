@@ -4,7 +4,8 @@ from Game.GUI.GUI import GUI
 from Game.ForwardModel import ForwardModel
 from Game.GameState import GameState
 from concurrent.futures import ThreadPoolExecutor
-
+from Game.Action import Action
+from Players.HumanPlayer import HumanPlayer
 
 class Game:
     def __init__(self, parameters):
@@ -16,6 +17,7 @@ class Game:
         self.action_p1 = None
         self.thread_p0_thinking = False
         self.thread_p1_thinking = False
+        self.human_playing = -1
         self.forward_model = ForwardModel()
 
     def reset(self):
@@ -25,18 +27,18 @@ class Game:
     def player_0_thinking(self, observation, player, budged):
 
         self.thread_p0_thinking = True
-        print(player, " thinking...")
+        # print(player, " thinking...")
         t = time.time()
         try:
             self.action_p0 = func_timeout.func_timeout(budged, player.think, args=[observation, budged])
             t = time.time() - t
         except func_timeout.FunctionTimedOut:
-            print("{0} exceeded time to think, choosing random action...".format(player))
+            # print("{0} exceeded time to think, choosing random action...".format(player))
             self.action_p0 = observation.get_random_action()
             t = time.time() - t
-            print("{0} time expended: {1}".format(player, t))
+            # print("{0} time expended: {1}".format(player, t))
             self.thread_p0_thinking = False
-        print("{0} time expended: {1}".format(player, t))
+        # print("{0} time expended: {1}".format(player, t))
         self.thread_p0_thinking = False
 
     def player_1_thinking(self, observation, player, budged):
@@ -59,6 +61,8 @@ class Game:
     def run(self, l_players,
             verbose, budged):
         """Runs a TotalBotWar 'Game'"""
+        if isinstance(l_players[0], HumanPlayer): self.human_playing = 0
+        elif isinstance(l_players[1], HumanPlayer): self.human_playing = 1
         executor = ThreadPoolExecutor(max_workers=2)
         for unit in self.game_state.player_0_units:
             print(unit, "\n")
@@ -70,13 +74,28 @@ class Game:
 
         last_time = time.time()
         while not self.game_state.is_terminal():
+            click = None
             if verbose:
-                self.pause = self.gui.draw_screen(self.game_state.player_0_units +
+                self.pause, click = self.gui.draw_screen(self.game_state.player_0_units +
                                                   self.game_state.player_1_units,
                                                   self.game_state.game_parameters.remaining_time)
             if self.pause:
                 continue
 
+            if click is not None: print(click)
+
+            if click is not None and self.human_playing != -1:
+                units = self.game_state.player_0_units if self.human_playing == 0 else self.game_state.player_1_units
+                selected_unit = self.forward_model.some_unit_is_selected(units)
+                if selected_unit is not None:
+                    action = Action(selected_unit, click[0], click[1])
+                    if self.human_playing == 0: self.action_p0 = action
+                    else: self.action_p1 = action
+                    selected_unit.selected = False
+                else:
+                    selected_unit = self.forward_model.unit_clicked(units, click)
+                    if selected_unit is not None:
+                        selected_unit.selected = True
             if time.time() - last_time >= 0.1:
 
                 # region THREADS

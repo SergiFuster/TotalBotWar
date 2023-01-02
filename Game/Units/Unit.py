@@ -18,6 +18,7 @@ class Unit:
         self.team = team
         # endregion
         # region DEFAULT VARIABLES
+        self.selected = False
         self.moving = False
         self.buffed = False
         self.size = (0, 0)

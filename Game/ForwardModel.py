@@ -385,3 +385,37 @@ class ForwardModel:
                 destination.y > screen_size[1] or destination.y < 0:
             return False
         return True
+
+    def some_unit_is_selected(self, units):
+        """
+        Return unit that is selected already, None if no one is
+        :param units: list of TotalBotWar.Game.Units.Unit.Unit
+        :return: TotalBotWar.Game.Units.Unit.Unit
+        """
+        for unit in units:
+            if unit.selected:
+                return unit
+        return None
+
+    def unit_clicked(self, units, click):
+        """
+        Return Unit that have been clicked or None if no one was clicked
+        :param units: list of TotalBotWar.Game.Units.Unit.Unit
+        :param click: (float, float)
+        :return: TotalBotWar.Game.Units.Unit.Unit
+        """
+        for unit in units:
+            vunit_half_size = Vector([unit.size[0]/2, unit.size[1]/2])
+            if self.point_inside_rect(click, unit.position - vunit_half_size, unit.position + vunit_half_size):
+                return unit
+        return None
+
+    def point_inside_rect(self, point, corner1, corner2):
+        """
+        Say if point is inside rect
+        :param point: (float, float)
+        :param corner1: TotalBotWar.Utilities.Vector.Vector -> up-left
+        :param corner2: TotalBotWar.Utilities.Vector.Vector -> bot-right
+        :return: bool
+        """
+        return corner1.x <= point[0] <= corner2.x and corner1.y <= point[1] <= corner2.y

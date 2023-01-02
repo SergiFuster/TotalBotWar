@@ -3,6 +3,7 @@ from Game.GameParameters import GameParameters
 from Players.RandomPlayer import RandomPlayer
 from Players.OSLAPlayer import OSLAPlayer
 from Heuristics.SimpleHeuristic import SimpleHeuristic
+from Players.HumanPlayer import HumanPlayer
 from Players.AlwaysStraightPlayer import AlwaysStraightPlayer
 from Players.AlwaysStoppedPlayer import AlwaysStoppedPlayer
 
@@ -57,7 +58,8 @@ print("Action1 == units[0]: ", action1 == units[0])"""
 
 verbose = True
 budged = 3
-players = [OSLAPlayer(SimpleHeuristic()), RandomPlayer()]
+# players = [OSLAPlayer(SimpleHeuristic()), RandomPlayer()]
+players = [HumanPlayer(), RandomPlayer()]
 game_parameters = GameParameters(players)
 game = Game(game_parameters)
 game.run(players, verbose, budged)
