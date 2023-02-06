@@ -3,6 +3,7 @@ from Game.GameParameters import GameParameters
 from Players.RandomPlayer import RandomPlayer
 from Players.OSLAPlayer import OSLAPlayer
 from Heuristics.SimpleHeuristic import SimpleHeuristic
+from Players.HumanPlayer import HumanPlayer
 from Players.AlwaysStraightPlayer import AlwaysStraightPlayer
 from Players.AlwaysStoppedPlayer import AlwaysStoppedPlayer
 

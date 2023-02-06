@@ -55,6 +55,7 @@ class GUI:
         :param remaining_time: float with time left
         :return: bool that indicates if game is paused
         """
+        click = None
         if not self.screen_open:
             self.start_screen()
 
@@ -62,7 +63,7 @@ class GUI:
             if event.type == QUIT:
                 self.close_screen()
             if event.type == pygame.MOUSEBUTTONUP:
-                pass
+                click = pygame.mouse.get_pos()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.pause = not self.pause
@@ -80,7 +81,7 @@ class GUI:
 
         pygame.display.flip()
 
-        return self.pause
+        return self.pause, click
 
     def draw_unit(self, unit):
         """
