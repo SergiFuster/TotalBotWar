@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from Game.Action import Action
 from Players.HumanPlayer import HumanPlayer
 
+
 class Game:
     def __init__(self, parameters):
         self.game_state = GameState(parameters)
@@ -82,8 +83,6 @@ class Game:
             if self.pause:
                 continue
 
-            if click is not None: print(click)
-
             if click is not None and self.human_playing != -1:
                 units = self.game_state.player_0_units if self.human_playing == 0 else self.game_state.player_1_units
                 selected_unit = self.forward_model.some_unit_is_selected(units)
@@ -96,6 +95,7 @@ class Game:
                     selected_unit = self.forward_model.unit_clicked(units, click)
                     if selected_unit is not None:
                         selected_unit.selected = True
+
             if time.time() - last_time >= 0.1:
 
                 # region THREADS
