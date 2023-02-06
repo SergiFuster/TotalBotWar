@@ -9,7 +9,7 @@ class GameParameters:
     def __init__(self,
                  l_players,
                  central_zone_size=100,
-                 screen_size=(1000, 500),
+                 screen_size=(1080, 1920),
                  temp=180):
         """
         This is class-keeper to group every game modifiable parameters in one site

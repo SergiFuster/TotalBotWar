@@ -154,7 +154,7 @@ class Vector:
         return Vector([self.values[i] - other.values[i] for i in range(len(other.values))])
 
     def __str__(self):
-        return str(self.values) + "- Vector: {0} - List of Values: {1}".format(hex(id(self)), hex((id(self.value))))
+        return f"[{self.x:.2f}, {self.y:.2f}]"
 
     def __len__(self):
         """Return the dimension of the vector"""

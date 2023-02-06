@@ -21,6 +21,10 @@ class Sword(Unit):
         else:
             self.color = [185, 185, 185]
 
+    @property
+    def type(self):
+        return "s"
+
     def clone(self, is_target=False):
         """
         Generate a copy of self unit

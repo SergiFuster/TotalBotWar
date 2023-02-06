@@ -21,6 +21,10 @@ class Spear(Unit):
         else:
             self.color = [125, 0, 0]
 
+    @property
+    def type(self):
+        return "sp"
+
     def clone(self, is_target=False):
         """
         Generate a copy of self unit

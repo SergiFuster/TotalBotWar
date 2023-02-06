@@ -64,6 +64,14 @@ class Unit:
         """
         return self.target is not None and time.time() - self.last_attack >= 1 / self.attack_rate
 
+    def attacking(self):
+        """
+        Return bool saying if unit is attacking, especially designed for database
+        :return: bool
+        """
+        if self.target is not None: return True
+        return False
+
     def can_buff(self):
         return str(self) == "GENERAL"
 
@@ -73,6 +81,28 @@ class Unit:
         :return: Returns nothing
         """
         pass
+
+    @property
+    def type(self):
+        """
+        Return string with type identifier, especially designed for database
+        :return: string
+        """
+        pass
+
+    @property
+    def state(self):
+        """
+        Return string with state identifier, especially designed for database
+        :return: string
+        """
+        if self.dead:
+            return "dead"
+        if self.attacking():
+            return "attacking"
+        if self.moving:
+            return "moving"
+        return "stopped"
 
     def restore_stats(self):
         """
@@ -95,7 +125,6 @@ class Unit:
             self.set_destination(self.position)
             self.target = unit
             self.set_direction(unit.position)
-
 
     def modify_stats(self, function):
         """

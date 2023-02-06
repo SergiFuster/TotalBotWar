@@ -157,7 +157,6 @@ class GUI:
                              (unit.position + (unit.direction.normalized() * self.direction_line_longitude)).values,
                              2)
         # endregion
-        # endregion
 
     def draw_hud(self, remaining_time):
         """

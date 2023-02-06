@@ -21,6 +21,10 @@ class Knight(Unit):
         else:
             self.color = [70, 70, 70]
 
+    @property
+    def type(self):
+        return "k"
+
     def clone(self, is_target=False):
         """
         Generate a copy of self unit

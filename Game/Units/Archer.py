@@ -25,6 +25,10 @@ class Archer(Unit):
         else:
             self.color = [0, 0, 125]
 
+    @property
+    def type(self):
+        return "a"
+
     def clone(self, is_target=False):
         """
         Generate a copy of self unit

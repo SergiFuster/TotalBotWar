@@ -6,6 +6,7 @@ from Game.GameState import GameState
 from concurrent.futures import ThreadPoolExecutor
 from Game.Action import Action
 from Players.HumanPlayer import HumanPlayer
+from Database import controller as db
 
 
 class Game:
@@ -76,6 +77,7 @@ class Game:
         last_time = time.time()
         while not self.game_state.is_terminal():
             click = None
+            db.insert_game_state(self.game_state)
             if verbose:
                 self.pause, click = self.gui.draw_screen(self.game_state.player_0_units +
                                                   self.game_state.player_1_units,

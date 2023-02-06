@@ -26,6 +26,10 @@ class General(Unit):
         else:
             self.color = [125, 125, 0]
 
+    @property
+    def type(self):
+        return "g"
+
     def clone(self, is_target=False):
         """
         Generate a copy of self unit
