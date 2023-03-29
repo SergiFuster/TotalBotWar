@@ -42,6 +42,12 @@ class Vector:
         other_vector.x = self.x
         other_vector.y = self.y
 
+    def serialize(self):
+        return{
+            "x": self.x,
+            "y": self.y
+        }
+
     @staticmethod
     def direction(v1, v2):
         """Returns a new vector with direction from v1 to v2"""
@@ -154,7 +160,7 @@ class Vector:
         return Vector([self.values[i] - other.values[i] for i in range(len(other.values))])
 
     def __str__(self):
-        return f"[{self.x:.2f}, {self.y:.2f}]"
+        return f"[{self.x:.2f},{self.y:.2f}]"
 
     def __len__(self):
         """Return the dimension of the vector"""

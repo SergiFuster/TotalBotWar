@@ -9,7 +9,7 @@ class GameParameters:
     def __init__(self,
                  l_players,
                  central_zone_size=100,
-                 screen_size=(1080, 1920),
+                 screen_size=(1000, 500),
                  temp=180):
         """
         This is class-keeper to group every game modifiable parameters in one site
@@ -41,7 +41,6 @@ class GameParameters:
     def setup_units(self, players):
 
         # Troops that can place the player
-        types ="KKSSPPAAG"
         # region instructions
         # K = Knight
         # S = Sword
@@ -49,14 +48,12 @@ class GameParameters:
         # A = Archer
         # G = General
         # endregion
+        types ="KKSSPPAAG"
         p0_up_left_corner = [0, 0]
         p0_bot_right_corner = [self.screen_size[0], self.screen_size[1]/2-self.central_zone_size/2]
 
         p1_up_left_corner = [0, self.screen_size[1]/2+self.central_zone_size/2]
         p1_bot_right_corner = [self.screen_size[0], self.screen_size[1]]
-
-        print("p0 limits: [{0}, {1}] \t p1 limits: [{2}, {3}]".format(p0_up_left_corner, p0_bot_right_corner,
-                                                                      p1_up_left_corner, p1_bot_right_corner))
 
         limits = ((p0_up_left_corner, p0_bot_right_corner), (p1_up_left_corner, p1_bot_right_corner))
 
@@ -103,7 +100,6 @@ class GameParameters:
                     continue
                 while self.forward_model.intersect(unit, other):
                     direction = Vector.direction(unit.position, other.position)
-                    print(direction)
                     if direction == Vector.zero():
                         direction = Vector.random()
                     other.reposition(direction.normalized())
@@ -116,7 +112,6 @@ class GameParameters:
                     continue
                 while self.forward_model.intersect(unit, other):
                     direction = Vector.direction(unit.position, other.position)
-                    print(direction)
                     if direction == Vector.zero():
                         direction = Vector.random()
                     other.reposition(direction.normalized())

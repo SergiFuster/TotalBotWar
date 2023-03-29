@@ -242,3 +242,32 @@ class Unit:
 
     def __str__(self):
         return ""
+
+    def serialize(self):
+        """
+        Convert self information to serializable format
+        :param initial: Boolean
+        :return: Dictionary
+        """
+
+        to_return = {"id" :             str(self.id),
+                     "state":           self.get_state(),
+                     "type":            str(self),
+                     "health":          self.health,
+                     "position":        self.position.serialize(),
+                     "orientation":     self.direction.serialize(),
+                     "width":           self.size[0],
+                     "height":          self.size[1]}
+        return to_return
+
+    def get_state(self):
+        """
+        Determines in which state are this unit
+        :return: string
+        """
+        if self.dead:           return "DEAD"
+        if self.attacking():    return "ATTACKING"
+        if self.moving:         return "MOVING"
+        return "IDLE"
+
+
