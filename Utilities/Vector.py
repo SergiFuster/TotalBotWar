@@ -44,8 +44,8 @@ class Vector:
 
     def serialize(self):
         return{
-            "x": self.x,
-            "y": self.y
+            "x": round(self.x, 2),
+            "y": round(self.y, 2)
         }
 
     @staticmethod

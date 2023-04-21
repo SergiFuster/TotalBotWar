@@ -40,8 +40,19 @@ def get_available_port():
 @app.route("/game/start")
 def start_game():
     # Validar el usuario
-    # if (not valid_user()): return "Acces not allowed", 403
+    if (not valid_user()): return "Acces not allowed", 403
 
+    bot0 = request.args.get("bot0")
+    bot1 = request.args.get("bot1")
+
+    screen_width = request.args.get("width")
+    screen_height = request.args.get("height")
+
+    print(f"Screen width: {screen_width}")
+    print(f"Screen height: {screen_height}")
+
+    print(bot0)
+    print(bot1)
     # Generar id único para el usuario
     ID = uuid.uuid4()
     print(f"Client id: {ID}")
@@ -59,7 +70,7 @@ def start_game():
             try:
                 # Creamos el proceso hijo
                 proceso = subprocess.Popen(
-                    ['python', '../executor.py', HOST, str(port), str(ID), "bot1", "bot2"],
+                    ['python', '../executor.py', HOST, str(port), str(ID), bot0, bot1, str(screen_width), str(screen_height)],
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                 # Espera la respuesta del hijo
                 socket_state = proceso.stdout.readline().decode().strip()

@@ -97,11 +97,10 @@ class Game:
             if time.time() - last_time >= 0.1:
 
                 # region THREADS
-                if not self.thread_p0_thinking:
+                if not self.thread_p0_thinking and not self.human_playing == 0:
                     executor.submit(self.player_0_thinking, self.game_state.get_observation(0), l_players[0], budged)
-                if not self.thread_p1_thinking:
+                if not self.thread_p1_thinking and not self.human_playing == 1:
                     executor.submit(self.player_1_thinking, self.game_state.get_observation(1), l_players[1], budged)
-
                 # endregion
 
                 # region NO THREADS

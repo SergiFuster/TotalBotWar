@@ -83,9 +83,9 @@ class GameParameters:
 
                 team += 1
 
-        self.fix_initial_positions(limits)
+        self.fix_initial_positions_and_destinations(limits)
 
-    def fix_initial_positions(self, limits):
+    def fix_initial_positions_and_destinations(self, limits):
         """
         Looks for collisions with self positioned units or
         out of limits and moves actual if is mandatory
@@ -103,6 +103,7 @@ class GameParameters:
                     if direction == Vector.zero():
                         direction = Vector.random()
                     other.reposition(direction.normalized())
+            unit.set_destination(unit.position)
 
         for unit in self.player_1_units:
             if self.out_of_limits(unit.position, limits[1]):
@@ -115,6 +116,8 @@ class GameParameters:
                     if direction == Vector.zero():
                         direction = Vector.random()
                     other.reposition(direction.normalized())
+            unit.set_destination(unit.position)
+
 
     def random_position_inside_limits(self, limit):
         return [random.randrange(limit[0][0], limit[1][0]),

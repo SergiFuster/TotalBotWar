@@ -1,4 +1,5 @@
 import sys
+import json
 from Network.SocketManager import SocketTCP
 from Players.RandomPlayer import RandomPlayer
 from Players.OSLAPlayer import OSLAPlayer
@@ -25,6 +26,16 @@ Total parameters count: 6
 """
 
 
+def player_from_string(player_string):
+    player_string = player_string.lower()
+    if "osla" in player_string:
+        return OSLAPlayer(SimpleHeuristic())
+    elif "human" in player_string:
+        return HumanPlayer()
+    else:
+        return RandomPlayer()
+
+
 def send_father_message(message, tries=10):
     """
     Perform sending message for process creator by standard output
@@ -41,16 +52,18 @@ def send_father_message(message, tries=10):
     return True
 
 
-if len(sys.argv) != 6:
+if len(sys.argv) != 8:
     # Try to send the message 5 times
     send_father_message("ERROR", 5)
     sys.exit()
 
-HOST, PORT, CLIENT_ID, BOT1, BOT2 = sys.argv[1], \
-                                    sys.argv[2], \
-                                    sys.argv[3], \
-                                    sys.argv[4], \
-                                    sys.argv[5]
+HOST, PORT, CLIENT_ID, bot0String, bot1String, screen_width, screen_height = sys.argv[1], \
+                                                                             sys.argv[2], \
+                                                                             sys.argv[3], \
+                                                                             sys.argv[4], \
+                                                                             sys.argv[5], \
+                                                                             sys.argv[6], \
+                                                                             sys.argv[7]
 
 socket = SocketTCP(HOST, PORT)
 
@@ -65,17 +78,17 @@ if not connected: sys.exit()
 if not socket.wait_client(CLIENT_ID, 10):
     sys.exit()
 
-# Create bots according to BOT1 and BOT2 on final version
-
-bot1 = OSLAPlayer(SimpleHeuristic())
-bot2 = HumanPlayer()
+# Create bots according to BOT1 and BOT2
+bot0 = player_from_string(bot0String)
+bot1 = player_from_string(bot1String)
 
 verbose = False
 budged = 3
-players = [bot1, bot2]
-game_parameters = GameParameters(players)
+players = [bot0, bot1]
+game_parameters = GameParameters(players, screen_size=(int(screen_width), int(screen_height)))
 game = Game(game_parameters)
 game.run(players, verbose, budged, socket)
 socket.close()
 sys.exit()
+
 
