@@ -66,7 +66,7 @@ class GameParameters:
 
                 limit = limits[team]
 
-                position = player.position_unit(type, limit[0], limit[1])
+                position = player.think_unit_position(type, limit[0], limit[1])
 
                 if letter == "K":
                     unit = Knight.Knight(-1, position[0], position[1], team)

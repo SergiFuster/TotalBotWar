@@ -73,9 +73,9 @@ class OSLAPlayer(Player):
 
         return Action(selected_unit, target_position.x, target_position.y)
 
-    def position_unit(self, type, up_left_corner_limit, bot_right_corner_limit):
-        return self.positions.pop()
-    
+    def think_unit_position(self, type, up_left_corner_limit, bot_right_corner_limit):
+        return super().think_unit_position(type, up_left_corner_limit, bot_right_corner_limit)
+
     def default_direction(self, unit):
         """
         The default direction when no direction is better than other

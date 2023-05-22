@@ -29,8 +29,8 @@ class RandomPlayer(Player):
 
         return action
 
-    def position_unit(self, type, up_left_corner_limit, bot_right_corner_limit):
-        return super().position_unit(type, up_left_corner_limit, bot_right_corner_limit)
+    def think_unit_position(self, type, up_left_corner_limit, bot_right_corner_limit):
+        return super().think_unit_position(type, up_left_corner_limit, bot_right_corner_limit)
 
     def __str__(self):
         return "RandomPlayer"
