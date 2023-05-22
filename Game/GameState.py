@@ -85,3 +85,15 @@ class GameState:
             for unit in self.player_1_units:
                 health += unit.health if unit.health > 0 else 0
         return health
+
+    def serialize(self):
+
+        to_return = {"team_0": {}, "team_1": {}}
+
+        for unit in self.player_0_units:
+            to_return["team_0"][unit.id] = unit.serialize()
+
+        for unit in self.player_1_units:
+            to_return["team_1"][unit.id] = unit.serialize()
+
+        return to_return

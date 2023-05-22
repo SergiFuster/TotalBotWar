@@ -8,6 +8,11 @@ class Archer(Unit):
         self.spread_attack_radius = 0
         super().__init__(id, x, y, team)
 
+    def manage_death(self):
+        if self.target:
+            self.target.archer_target = False
+        super().manage_death()
+
     def set_stats(self):
         self.defense = 5
         self.chargeForce = 5
@@ -28,6 +33,18 @@ class Archer(Unit):
     @property
     def type(self):
         return "a"
+
+    def try_set_target(self, unit):
+        """
+        Updates the appropriate attributes when a new target is assigned
+        :param unit: TotalBotWar.Game.Unit.Unit - unit that must be assigned as a target
+        :return: None
+        """
+        if self.target is None and not self.dead:
+            unit.archer_target = True
+            self.set_destination(self.position)
+            self.target = unit
+            self.set_direction(unit.position)
 
     def clone(self, is_target=False):
         """

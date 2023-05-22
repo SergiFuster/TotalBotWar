@@ -29,6 +29,7 @@ class Unit:
         self.direction = Vector([0, 1]) if team == 0 else Vector([0, -1])       # In which direction is facing
         self.target = None                                                      # Unit targeted by this Unit
         self.dead = False
+        self.archer_target = False
         # endregion
         # region COMMON STATS
         self.attack_rate = 1    # Attacks per second
@@ -122,6 +123,7 @@ class Unit:
         :return: None
         """
         if self.target is None and not self.dead:
+            unit.archer_target = False
             self.set_destination(self.position)
             self.target = unit
             self.set_direction(unit.position)
@@ -242,3 +244,33 @@ class Unit:
 
     def __str__(self):
         return ""
+
+    def serialize(self):
+        """
+        Convert self information to serializable format
+        :param initial: Boolean
+        :return: Dictionary
+        """
+
+        to_return = {"id":              self.id,
+                     "state":           self.get_state(),
+                     "type":            str(self),
+                     "health":          round(self.health, 2),
+                     "position":        self.position.serialize(),
+                     "orientation":     self.direction.serialize(),
+                     "width":           self.size[0],
+                     "height":          self.size[1],
+                     "archerTarget":   self.archer_target}
+        return to_return
+
+    def get_state(self):
+        """
+        Determines in which state are this unit
+        :return: string
+        """
+        if self.dead:           return "DEAD"
+        if self.attacking():    return "ATTACKING"
+        if self.moving:         return "MOVING"
+        return "IDLE"
+
+

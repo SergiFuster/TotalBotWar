@@ -1,3 +1,4 @@
+from Heuristics.SimpleHeuristic import SimpleHeuristic
 from Players.Player import Player
 from Game.Action import Action
 from Utilities.Vector import Vector
@@ -7,8 +8,10 @@ from Game.ForwardModel import ForwardModel
 
 class OSLAPlayer(Player):
 
-    def __init__(self, heuristic):
-        super().__init__(heuristic)
+    def __init__(self, heuristic=None):
+        if heuristic is None:
+            heuristic = SimpleHeuristic()
+        self.heuristic = heuristic
         self.forward_model = ForwardModel()
         self.positions = \
             [
