@@ -2,11 +2,11 @@ from Game.Units.Unit import Unit
 
 
 class Archer(Unit):
-    def __init__(self, id, x, y, team):
+    def __init__(self, id, x, y, team, screen_size):
         self.attackDistance = 0
         self.farAttack = 0
         self.spread_attack_radius = 0
-        super().__init__(id, x, y, team)
+        super().__init__(id, x, y, team, screen_size)
 
     def manage_death(self):
         if self.target:
@@ -14,11 +14,12 @@ class Archer(Unit):
         super().manage_death()
 
     def set_stats(self):
+        self.scale = 2.5
+        self.percent_width = 7.2
         self.defense = 5
         self.chargeForce = 5
         self.chargeResistance = 0
         self.velocity = 6.68
-        self.size = (52, 20.8)
         self.health = 100
         self.max_health = self.health
         self.farResistance = 10
@@ -51,7 +52,7 @@ class Archer(Unit):
         Generate a copy of self unit
         :return: TotalBotWar.Game.Unit.Unit
         """
-        new_unit = Archer(self.id, self.position.x, self.position.y, self.team)
+        new_unit = Archer(self.id, self.position.x, self.position.y, self.team, self.screen_size)
         new_unit.destination = self.destination.clone()
         new_unit.direction = self.direction.clone()
         new_unit.health = self.health

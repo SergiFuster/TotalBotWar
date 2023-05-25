@@ -3,7 +3,7 @@ import time
 
 
 class Unit:
-    def __init__(self, id, x, y, team):
+    def __init__(self, id, x, y, team, screen_size):
         """
         Construct a new Unit object
         :param id: int that identifies unequivocally the unit
@@ -18,6 +18,7 @@ class Unit:
         self.team = team
         # endregion
         # region DEFAULT VARIABLES
+        self.screen_size = screen_size
         self.selected = False
         self.moving = False
         self.buffed = False
@@ -40,9 +41,16 @@ class Unit:
         self.velocity = 0
         self.health = 0
         self.farResistance = 0
-        self.color = [255, 255, 255]                                                         # Just for pygame visualization
+        self.color = [255, 255, 255]       # Just for pygame visualization
+        self.scale = 0
+        self.percent_width = 0
         # endregion
         self.set_stats()
+        self.set_size()
+
+    def set_size(self):
+        width = self.percent_width * self.screen_size[0] / 100
+        self.size = (width, width / self.scale)
 
     def available(self):
         """

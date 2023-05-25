@@ -82,10 +82,16 @@ if not socket.wait_client(CLIENT_ID, 10):
 bot0 = player_from_string(bot0String)
 bot1 = player_from_string(bot1String)
 
+# Get Initial Positions
+initial_positions = socket.receive_initial_positions()
+if initial_positions is not None:
+    initial_positions = json.loads(initial_positions)
+
 verbose = False
 budged = 3
 players = [bot0, bot1]
-game_parameters = GameParameters(players, screen_size=(int(screen_width), int(screen_height)))
+screen_size = (int(screen_width), int(screen_height))
+game_parameters = GameParameters(players, screen_size, initial_positions)
 game = Game(game_parameters)
 game.run(players, verbose, budged, socket)
 socket.close()

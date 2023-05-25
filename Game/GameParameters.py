@@ -8,8 +8,9 @@ import random
 class GameParameters:
     def __init__(self,
                  l_players,
-                 central_zone_size=100,
                  screen_size=(1000, 500),
+                 initial_positions=None,
+                 central_zone_size=100,
                  temp=180):
         """
         This is class-keeper to group every game modifiable parameters in one site
@@ -20,7 +21,6 @@ class GameParameters:
         self.player_0_units = []
         self.player_1_units = []
         self.forward_model = ForwardModel()
-        self.setup_units(l_players)
         self.temp = temp
         self.start = 0
         self.time_elapsed = 0
@@ -37,53 +37,83 @@ class GameParameters:
         self.show_remaining_time = True
         self.show_instructions = False
         self.show_fight_indicator = False
+        self.setup_units(initial_positions)
 
-    def setup_units(self, players):
+    def random_initial_positions(self):
+        half_down = self.screen_size[1] / 2
+        initial_positions = {
+            "x": random.uniform(0, self.screen_size[0]),
+            "y": random.uniform(0, half_down),
+            "type": "GENERAL"
+        }
+        for i in range(8):
+            initial_positions[i] = {
+                "x": random.uniform(0, self.screen_size[0]),
+                "y": random.uniform(0, half_down),
+                "type": self.random_type()
+            }
+        return initial_positions
 
-        # Troops that can place the player
-        # region instructions
-        # K = Knight
-        # S = Sword
-        # P = Spear
-        # A = Archer
-        # G = General
-        # endregion
-        types ="KKSSPPAAG"
-        p0_up_left_corner = [0, 0]
-        p0_bot_right_corner = [self.screen_size[0], self.screen_size[1]/2-self.central_zone_size/2]
+    def random_type(self):
+        types = ["ARCHER", "SWORD", "SPEAR", "KNIGHT"]
+        return random.choice(types)
 
-        p1_up_left_corner = [0, self.screen_size[1]/2+self.central_zone_size/2]
-        p1_bot_right_corner = [self.screen_size[0], self.screen_size[1]]
+    def mirror_position(self, x, y):
+        return (self.screen_size[0] - x), (self.screen_size[1] - y)
 
-        limits = ((p0_up_left_corner, p0_bot_right_corner), (p1_up_left_corner, p1_bot_right_corner))
+    def setup_units(self, initial_positions):
+        if initial_positions is None:
+            initial_positions = self.random_initial_positions()
 
-        for letter in types:
-            team = 0
-            for player in players:
+        for unit in initial_positions:
 
-                limit = limits[team]
+            unit["type"] = unit["type"].upper()
+            if unit["type"] == "ARCHER":
+                mirror = self.mirror_position(unit["x"], unit["y"])
 
-                position = player.think_unit_position(type, limit[0], limit[1])
+                unit_t0 = Archer.Archer(-1, unit["x"], unit["y"], 0, self.screen_size)
+                unit_t1 = Archer.Archer(-1, mirror[0], mirror[1], 1, self.screen_size)
 
-                if letter == "K":
-                    unit = Knight.Knight(-1, position[0], position[1], team)
-                elif letter == "S":
-                    unit = Sword.Sword(-1, position[0], position[1], team)
-                elif letter == "P":
-                    unit = Spear.Spear(-1, position[0], position[1], team)
-                elif letter == "G":
-                    unit = General.General(-1, position[0], position[1], team)
-                else:
-                    unit = Archer.Archer(-1, position[0], position[1], team)
+                self.player_0_units.append(unit_t0)
+                self.player_1_units.append(unit_t1)
 
-                if team == 0:
-                    self.player_0_units.append(unit)
-                else:
-                    self.player_1_units.append(unit)
+            elif unit["type"] == "SWORD":
+                mirror = self.mirror_position(unit["x"], unit["y"])
 
-                team += 1
+                unit_t0 = Sword.Sword(-1, unit["x"], unit["y"], 0, self.screen_size)
+                unit_t1 = Sword.Sword(-1, mirror[0], mirror[1], 1, self.screen_size)
 
-        self.fix_initial_positions_and_destinations(limits)
+                self.player_0_units.append(unit_t0)
+                self.player_1_units.append(unit_t1)
+
+            elif unit["type"] == "SPEAR":
+                mirror = self.mirror_position(unit["x"], unit["y"])
+
+                unit_t0 = Spear.Spear(-1, unit["x"], unit["y"], 0, self.screen_size)
+                unit_t1 = Spear.Spear(-1, mirror[0], mirror[1], 1, self.screen_size)
+
+                self.player_0_units.append(unit_t0)
+                self.player_1_units.append(unit_t1)
+
+            elif unit["type"] == "KNIGHT":
+                mirror = self.mirror_position(unit["x"], unit["y"])
+
+                unit_t0 = Knight.Knight(-1, unit["x"], unit["y"], 0, self.screen_size)
+                unit_t1 = Knight.Knight(-1, mirror[0], mirror[1], 1, self.screen_size)
+
+                self.player_0_units.append(unit_t0)
+                self.player_1_units.append(unit_t1)
+
+            else:
+                mirror = self.mirror_position(unit["x"], unit["y"])
+
+                unit_t0 = General.General(-1, unit["x"], unit["y"], 0, self.screen_size)
+                unit_t1 = General.General(-1, mirror[0], mirror[1], 1, self.screen_size)
+
+                self.player_0_units.append(unit_t0)
+                self.player_1_units.append(unit_t1)
+
+
 
     def fix_initial_positions_and_destinations(self, limits):
         """

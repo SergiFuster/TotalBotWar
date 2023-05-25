@@ -2,17 +2,18 @@ from Game.Units.Unit import Unit
 
 
 class Spear(Unit):
-    def __init__(self, id, x, y, team):
+    def __init__(self, id, x, y, team, screen_size):
         self.attack = 0
-        super().__init__(id, x, y, team)
+        super().__init__(id, x, y, team, screen_size)
 
     def set_stats(self):
+        self.scale = 2
+        self.percent_width = 6.8
         self.defense = 20
         self.attack = 15
         self.chargeForce = 10
         self.chargeResistance = 125
         self.velocity = 5.6
-        self.size = (48, 24)
         self.health = 250
         self.max_health = self.health
         self.farResistance = 30
@@ -30,7 +31,7 @@ class Spear(Unit):
         Generate a copy of self unit
         :return: TotalBotWar.Game.Unit.Unit
         """
-        new_unit = Spear(self.id, self.position.x, self.position.y, self.team)
+        new_unit = Spear(self.id, self.position.x, self.position.y, self.team, self.screen_size)
         new_unit.destination = self.destination.clone()
         new_unit.direction = self.direction.clone()
         new_unit.health = self.health

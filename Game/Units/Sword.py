@@ -2,17 +2,18 @@ from Game.Units.Unit import Unit
 
 
 class Sword(Unit):
-    def __init__(self, id, x, y, team):
+    def __init__(self, id, x, y, team, screen_size):
         self.attack = 0
-        super().__init__(id, x, y, team)
+        super().__init__(id, x, y, team, screen_size)
 
     def set_stats(self):
+        self.scale = 1.97
+        self.percent_width = 4.5
         self.defense = 10
         self.attack = 20
         self.chargeForce = 5
         self.chargeResistance = 25
         self.velocity = 6.68
-        self.size = (24.96, 12.64)
         self.health = 250
         self.max_health = self.health
         self.farResistance = 10
@@ -30,7 +31,7 @@ class Sword(Unit):
         Generate a copy of self unit
         :return: TotalBotWar.Game.Unit.Unit
         """
-        new_unit = Sword(self.id, self.position.x, self.position.y, self.team)
+        new_unit = Sword(self.id, self.position.x, self.position.y, self.team, self.screen_size)
         new_unit.destination = self.destination.clone()
         new_unit.direction = self.direction.clone()
         new_unit.health = self.health

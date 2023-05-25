@@ -87,6 +87,17 @@ class SocketTCP:
         except:
             return False
 
+    def receive_initial_positions(self, waiting_time=100):
+        """
+        First receives the message and next send the result
+        :param waiting_time: Amount waiting time in seconds
+        :return: Message received with original format
+        """
+        initial_positions = self.receive_message(waiting_time)
+        message = "RECEIVED" if initial_positions is not None else "ERROR"
+        self.send_message(message)
+        return initial_positions
+
     def change_information(self, gamestate):
         """Send game state and wait for message,
         if message is json manage it, return data received decoded otherwise."""

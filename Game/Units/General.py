@@ -3,19 +3,20 @@ from Utilities.Vector import Vector
 
 
 class General(Unit):
-    def __init__(self, id, x, y, team):
+    def __init__(self, id, x, y, team, screen_size):
         self.attack = 0
         self.buff_radius = 0
         self.buff_ratio = 0
-        super().__init__(id, x, y, team)
+        super().__init__(id, x, y, team, screen_size)
 
     def set_stats(self):
+        self.scale = 1.97
+        self.percent_width = 4.5
         self.defense = 10
         self.attack = 20
         self.chargeForce = 5
         self.chargeResistance = 100
         self.velocity = 6.68
-        self.size = (20, 20)
         self.health = 100
         self.max_health = self.health
         self.farResistance = 10
@@ -35,7 +36,7 @@ class General(Unit):
         Generate a copy of self unit
         :return: TotalBotWar.Game.Unit.Unit
         """
-        new_unit = General(self.id, self.position.x, self.position.y, self.team)
+        new_unit = General(self.id, self.position.x, self.position.y, self.team, self.screen_size)
         new_unit.destination = self.destination.clone()
         new_unit.direction = self.direction.clone()
         new_unit.health = self.health

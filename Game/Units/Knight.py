@@ -2,17 +2,18 @@ from Game.Units.Unit import Unit
 
 
 class Knight(Unit):
-    def __init__(self, id, x, y, team):
+    def __init__(self, id, x, y, team, screen_size):
         self.attack = 0
-        super().__init__(id, x, y, team)
+        super().__init__(id, x, y, team, screen_size)
 
     def set_stats(self):
+        self.scale = 1
+        self.percent_width = 5.84
         self.defense = 12
         self.attack = 12
         self.chargeForce = 100
         self.chargeResistance = 15
         self.velocity = 16.36
-        self.size = (38.4, 38.4)
         self.health = 200
         self.max_health = self.health
         self.farResistance = 30
@@ -30,7 +31,7 @@ class Knight(Unit):
         Generate a copy of self unit
         :return: TotalBotWar.Game.Unit.Unit
         """
-        new_unit = Knight(self.id, self.position.x, self.position.y, self.team)
+        new_unit = Knight(self.id, self.position.x, self.position.y, self.team, self.screen_size)
         new_unit.destination = self.destination.clone()
         new_unit.direction = self.direction.clone()
         new_unit.health = self.health
