@@ -15,7 +15,7 @@ class Archer(Unit):
 
     def set_stats(self):
         self.scale = 2.5
-        self.percent_width = 7.2
+        self.percent_width = 10.2
         self.defense = 5
         self.chargeForce = 5
         self.chargeResistance = 0

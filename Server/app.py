@@ -11,6 +11,7 @@ app.config['SECRET_KEY'] = 'total-bot-war-secret-key'
 
 HOST = "localhost"
 lock = threading.Lock()
+ports_used = {}
 
 
 def valid_user():
@@ -26,14 +27,7 @@ def Index():
 
 def get_available_port():
     for puerto in range(1024, 65535):
-        try:
-            # Intenta conectarse al puerto
-            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-                s.bind((HOST, puerto))
-                # Si ha llegado aquí es que se ha podido conectar
-                return puerto
-        except:
-            pass
+        if puerto not in ports_used: return puerto
     return None
 
 
@@ -57,28 +51,27 @@ def start_game():
     ID = uuid.uuid4()
     print(f"Client id: {ID}")
 
-    global puerto, lock
-    # Para prevenir condiciones de carrera
-    with lock:
-        port = None
-        while not port:
 
-            # Buscar un puerto disponible
-            port = get_available_port()
-            print(f"Trying with port {port}")
-            # Crear proceso secundario
-            try:
-                # Creamos el proceso hijo
-                proceso = subprocess.Popen(
-                    ['python', '../executor.py', HOST, str(port), str(ID), bot0, bot1, str(screen_width), str(screen_height)],
-                    stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-                # Espera la respuesta del hijo
-                socket_state = proceso.stdout.readline().decode().strip()
-            except:
-                socket_state = "ERROR"
+    port = None
+    while not port:
+
+        # Buscar un puerto disponible
+        port = get_available_port()
+        print(f"Trying with port {port}")
+        # Crear proceso secundario
+        try:
+            # Creamos el proceso hijo
+            proceso = subprocess.Popen(
+                ['python', '../executor.py', HOST, str(port), str(ID), bot0, bot1, str(screen_width), str(screen_height)],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            # Espera la respuesta del hijo
+            socket_state = proceso.stdout.readline().decode().strip()
+            ports_used[port] = True
+        except:
+            socket_state = "ERROR"
 
             # Si el hijo no ha podido establecer la conexión con el socket
-            if socket_state != "READY": port = None
+        if socket_state != "READY": port = None
     print(f"Proceso escuchando en {HOST} puerto {port}")
 
     # Devolver mensaje con info en caso de que t0d0 haya ido bien y error en caso contrario y gestionarlo desde unity

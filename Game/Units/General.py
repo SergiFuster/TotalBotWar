@@ -10,8 +10,8 @@ class General(Unit):
         super().__init__(id, x, y, team, screen_size)
 
     def set_stats(self):
-        self.scale = 1.97
-        self.percent_width = 4.5
+        self.scale = 0.7
+        self.percent_width = 3
         self.defense = 10
         self.attack = 20
         self.chargeForce = 5

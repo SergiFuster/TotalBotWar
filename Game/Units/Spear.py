@@ -8,7 +8,7 @@ class Spear(Unit):
 
     def set_stats(self):
         self.scale = 2
-        self.percent_width = 6.8
+        self.percent_width = 9.8
         self.defense = 20
         self.attack = 15
         self.chargeForce = 10

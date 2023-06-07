@@ -9,6 +9,7 @@ from Game.ForwardModel import ForwardModel
 class OSLAPlayer(Player):
 
     def __init__(self, heuristic=None):
+        super().__init__(heuristic)
         if heuristic is None:
             heuristic = SimpleHeuristic()
         self.heuristic = heuristic
@@ -75,9 +76,6 @@ class OSLAPlayer(Player):
         target_position = selected_unit.position + (self.default_direction(selected_unit) * d)
 
         return Action(selected_unit, target_position.x, target_position.y)
-
-    def think_unit_position(self, type, up_left_corner_limit, bot_right_corner_limit):
-        return super().think_unit_position(type, up_left_corner_limit, bot_right_corner_limit)
 
     def default_direction(self, unit):
         """

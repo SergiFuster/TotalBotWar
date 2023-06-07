@@ -8,7 +8,7 @@ class Knight(Unit):
 
     def set_stats(self):
         self.scale = 1
-        self.percent_width = 5.84
+        self.percent_width = 8.84
         self.defense = 12
         self.attack = 12
         self.chargeForce = 100

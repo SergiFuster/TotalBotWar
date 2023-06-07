@@ -8,7 +8,7 @@ class Sword(Unit):
 
     def set_stats(self):
         self.scale = 1.97
-        self.percent_width = 4.5
+        self.percent_width = 7.5
         self.defense = 10
         self.attack = 20
         self.chargeForce = 5
